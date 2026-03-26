@@ -14,11 +14,14 @@ Route::get('/register', [AuthController::class, 'showRegister'])->name('register
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+// Mural como página inicial (pública)
+Route::get('/', [NoticeController::class, 'index'])->name('home');
+
 // Área autenticada
 Route::middleware('auth')->group(function () {
 
     // Cursos
-    Route::get('/', [CourseController::class, 'index'])->name('courses.index');
+    Route::get('/courses', [CourseController::class, 'index'])->name('courses.index');
     Route::get('/courses/create', [CourseController::class, 'create'])->name('courses.create');
     Route::post('/courses', [CourseController::class, 'store'])->name('courses.store');
     Route::get('/courses/{course}', [CourseController::class, 'show'])->name('courses.show');
@@ -28,12 +31,17 @@ Route::middleware('auth')->group(function () {
     Route::get('/chat', [MessageController::class, 'index'])->name('chat.index');
     Route::post('/chat', [MessageController::class, 'store'])->name('chat.store');
     Route::get('/chat/fetch', [MessageController::class, 'fetch'])->name('chat.fetch');
+    Route::patch('/chat/{message}', [MessageController::class, 'update'])->name('chat.update');
+    Route::delete('/chat/{message}', [MessageController::class, 'destroy'])->name('chat.destroy');
 
     // Mural de Avisos
     Route::get('/notices', [NoticeController::class, 'index'])->name('notices.index');
+    Route::get('/notices/create', [NoticeController::class, 'create'])->name('notices.create');
     Route::post('/notices', [NoticeController::class, 'store'])->name('notices.store');
     Route::delete('/notices/{notice}', [NoticeController::class, 'destroy'])->name('notices.destroy');
     Route::get('/api/active-notices', [NoticeController::class, 'getActiveNotices'])->name('active.notices');
+    Route::get('/notices/{notice}', [NoticeController::class, 'show'])->name('notices.show');
+    Route::resource('notices', NoticeController::class);
 
     Route::post('/unlock-badge', [BadgeController::class, 'checkAndUnlock'])->name('unlock.badge');
 

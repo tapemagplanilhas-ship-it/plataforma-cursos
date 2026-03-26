@@ -2,21 +2,20 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Message extends Model
 {
-    use HasFactory;
+    protected $fillable = ['user_id', 'body', 'media_path', 'media_type'];
 
-    protected $fillable = [
-        'user_id',
-        'body',
-    ];
-
-    // Relacionamento com usuário
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function getMediaUrlAttribute()
+    {
+        return $this->media_path ? asset('storage/' . $this->media_path) : null;
     }
 }

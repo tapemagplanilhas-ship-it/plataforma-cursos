@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+     <link rel="stylesheet" href="{{ asset('css/theme.css') }}">
     <title>{{ config('app.name', 'Plataforma de Cursos') }}</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -123,6 +124,10 @@
             <a href="{{ route('courses.index') }}">Cursos</a>
             <a href="{{ route('notices.index') }}">Avisos</a>
             <a href="{{ route('chat.index') }}">Chat</a>
+
+            <button class="theme-toggle" id="globalThemeToggle" title="Alternar tema">
+                <span class="theme-icon">🌙</span>
+            </button>
             @if(auth()->user()->isAdmin())
                 <a href="{{ route('admin.dashboard') }}">⚙️ Admin</a>
             @endif
@@ -193,5 +198,122 @@ function closeWelcomeModal() { document.getElementById('welcomeModal').style.dis
     }, 5000);
 </script>
 @endif
+
+<script>
+    const themeToggle = document.getElementById('globalThemeToggle');
+    const htmlElement = document.documentElement;
+    const themeIcon = document.querySelector('.theme-icon');
+
+    function initTheme() {
+        const savedTheme = localStorage.getItem('tapemag-theme') || 
+                          (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        applyTheme(savedTheme);
+    }
+
+    function applyTheme(theme) {
+        if (theme === 'light') {
+            htmlElement.classList.add('light-mode');
+            themeIcon.textContent = '☀️';
+            localStorage.setItem('tapemag-theme', 'light');
+        } else {
+            htmlElement.classList.remove('light-mode');
+            themeIcon.textContent = '🌙';
+            localStorage.setItem('tapemag-theme', 'dark');
+        }
+    }
+
+    themeToggle.addEventListener('click', () => {
+        const currentTheme = htmlElement.classList.contains('light-mode') ? 'light' : 'dark';
+        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+        applyTheme(newTheme);
+    });
+
+    initTheme();
+</script>
+<!-- ALERT DE BEM-VINDO A CADA LOGIN -->
+@if(session('welcome'))
+<style>
+    .alert-welcome {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+        color: #fff;
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 20px 60px rgba(229, 0, 0, 0.5);
+        z-index: 10000;
+        width: 90%;
+        max-width: 500px;
+        text-align: center;
+        animation: slideIn 0.5s ease;
+    }
+    @keyframes slideIn {
+        from { transform: translate(-50%, -60%); opacity: 0; }
+        to { transform: translate(-50%, -50%); opacity: 1; }
+    }
+    .alert-title {
+        font-size: 2rem;
+        color: #e50000;
+        margin-bottom: 15px;
+    }
+    .alert-text {
+        font-size: 1.1rem;
+        color: #ccc;
+        margin-bottom: 20px;
+    }
+    .alert-button {
+        background: #e50000;
+        color: #fff;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 6px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+    .alert-button:hover {
+        background: #cc0000;
+    }
+    .alert-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 9999;
+    }
+</style>
+
+<div class="alert-overlay" onclick="closeAlert()"></div>
+<div class="alert-welcome">
+    <div class="alert-title">🔔 Bem-vindo de Volta!</div>
+    <div class="alert-text">{{ Auth::user()->name }}, você tem novos avisos e cursos para explorar.</div>
+    <button class="alert-button" onclick="closeAlert()">Entendi, Continuar</button>
+</div>
+
+<script>
+function closeAlert() {
+    const overlay = document.querySelector('.alert-overlay');
+    const alert = document.querySelector('.alert-welcome');
+    if (overlay) overlay.remove();
+    if (alert) alert.remove();
+}
+
+// Auto-fecha após 8s
+setTimeout(() => {
+    const alert = document.querySelector('.alert-welcome');
+    if (alert) {
+        closeAlert();
+    }
+}, 8000);
+</script>
+@endif
+
+
+
+
 </body>
 </html>

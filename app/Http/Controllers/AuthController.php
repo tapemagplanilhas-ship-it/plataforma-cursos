@@ -15,21 +15,21 @@ class AuthController extends Controller
     }
 
     public function login(Request $request)
-    {
-        $credentials = $request->validate([
-            'email'    => 'required|email',
-            'password' => 'required',
-        ]);
+{
+    $credentials = $request->validate([
+        'email'    => 'required|email',
+        'password' => 'required',
+    ]);
 
-        if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
-            return redirect()->route('courses.index');
-        }
-
-        return back()->withErrors([
-            'email' => 'Credenciais inválidas.',
-        ]);
+    if (Auth::attempt($credentials)) {
+        $request->session()->regenerate();
+        return redirect()->route('courses.index')->with('welcome', true);
     }
+
+    return back()->withErrors([
+        'email' => 'Credenciais inválidas.',
+    ]);
+}
 
     public function showRegister()
     {
@@ -37,23 +37,23 @@ class AuthController extends Controller
     }
 
     public function register(Request $request)
-    {
-        $data = $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|email|unique:users',
-            'password' => 'required|min:6|confirmed',
-        ]);
+{
+    $data = $request->validate([
+        'name'     => 'required|string|max:255',
+        'email'    => 'required|email|unique:users',
+        'password' => 'required|min:6|confirmed',
+    ]);
 
-        $user = User::create([
-            'name'     => $data['name'],
-            'email'    => $data['email'],
-            'password' => Hash::make($data['password']),
-            'role'     => 'aluno', // padrão ao se cadastrar
-        ]);
+    $user = User::create([
+        'name'     => $data['name'],
+        'email'    => $data['email'],
+        'password' => Hash::make($data['password']),
+        'role'     => 'aluno',
+    ]);
 
-        Auth::login($user);
-        return redirect()->route('courses.index');
-    }
+    Auth::login($user);
+    return redirect()->route('courses.index')->with('welcome', true);
+}
 
     public function logout(Request $request)
     {
@@ -62,4 +62,5 @@ class AuthController extends Controller
         $request->session()->regenerateToken();
         return redirect()->route('login');
     }
+
 }
