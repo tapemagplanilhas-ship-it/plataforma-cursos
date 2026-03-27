@@ -401,6 +401,39 @@ button {
     color: var(--color-text-dark);
 }
 
+/* =====================================================
+   SEPARADOR DE DATA - WhatsApp Style
+   ===================================================== */
+
+.date-separator {
+    text-align: center;
+    margin: var(--sp-xxxl) 0 var(--sp-xl) 0;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+}
+
+.date-separator span {
+    background-color: var(--color-bg-light);
+    color: var(--color-text-dark);
+    font-size: var(--font-sm);
+    padding: var(--sp-sm) var(--sp-md);
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    white-space: nowrap;
+}
+
+.date-separator::before,
+.date-separator::after {
+    content: '';
+    flex-grow: 1;
+    height: 1px;
+    background-color: var(--border-default);
+    margin: 0 var(--sp-md);
+}
 .msg-bubble.mine .msg-name {
     color: var(--color-primary);
 }
@@ -876,6 +909,11 @@ button {
         <span style="color: var(--color-text-dark); font-size: var(--font-md); margin-left: var(--sp-sm);">
             Conversando com: <strong id="selected-user" style="color: var(--color-primary);">Todos</strong>
         </span>
+        <div class="chat-header-right">
+    <button class="reset-filter-btn" onclick="resetUserFilter()" title="Voltar para conversa com todos" style="padding: 8px 16px; background: rgba(229, 0, 0, 0.15); color: #ffffff; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+        Ver Todos
+    </button>
+</div>
     </div>
     <div class="chat-header-right">
         <a href="{{ route('courses.index') }}" class="chat-exit-btn">← Voltar</a>
@@ -1014,18 +1052,36 @@ button {
     });
 
     // Selecionar usuário da sidebar
-    function selectUser(userId, userName) {
-        selectedUserId = userId;
-        selectedUserSpan.textContent = userName;
-        
-        // Remove classe active anterior
-        document.querySelectorAll('.user-item').forEach(item => {
-            item.classList.remove('active');
-        });
-        
-        // Adiciona classe active ao item clicado
-        event.currentTarget.classList.add('active');
-    }
+    // Selecionar usuário da sidebar
+function selectUser(userId, userName) {
+    selectedUserId = userId;
+    selectedUserSpan.textContent = userName;
+    
+    // Remove classe active anterior
+    document.querySelectorAll('.user-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    
+    // Adiciona classe active ao item clicado
+    event.currentTarget.classList.add('active');
+    
+    // 🔥 RECARREGA AS MENSAGENS FILTRADAS
+    fetchMessages();
+}
+
+// Resetar filtro para "Todos"
+function resetUserFilter() {
+    selectedUserId = null;
+    selectedUserSpan.textContent = 'Todos';
+    
+    // Remove classe active de todos os usuários
+    document.querySelectorAll('.user-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    
+    // Recarrega todas as mensagens
+    fetchMessages();
+}
 
     // Preview de arquivo
     fileInput.addEventListener('change', (e) => {
@@ -1117,32 +1173,89 @@ button {
         `;
     }
 
-    function fetchMessages() {
-        fetch('{{ route("chat.fetch") }}')
-            .then(res => res.json())
-            .then(msgs => {
-                const newIds = msgs.map(m => m.id);
-                const shouldScroll = lastMessageCount < msgs.length || chatBox.scrollTop >= chatBox.scrollHeight - chatBox.clientHeight - 50;
+   // Funções auxiliares de data
+function isSameDay(d1, d2) {
+    return d1.getFullYear() === d2.getFullYear() &&
+           d1.getMonth() === d2.getMonth() &&
+           d1.getDate() === d2.getDate();
+}
 
-                if (newIds.length !== messageIds.length) {
-                    chatBox.innerHTML = msgs.map(renderMessage).join('');
-                    messageIds = newIds;
-                    if (shouldScroll) scrollToBottom();
-                } else {
-                    for (let i = 0; i < msgs.length; i++) {
-                        if (messageIds[i] !== newIds[i]) {
-                            chatBox.innerHTML = msgs.map(renderMessage).join('');
-                            messageIds = newIds;
-                            if (shouldScroll) scrollToBottom();
-                            return;
-                        }
-                    }
+function isToday(date) {
+    const today = new Date();
+    return isSameDay(date, today);
+}
+
+function isYesterday(date) {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    return isSameDay(date, yesterday);
+}
+
+function formatDateLabel(date) {
+    if (isToday(date)) return "Hoje";
+    if (isYesterday(date)) return "Ontem";
+    return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+}
+
+// Fetch de mensagens com agrupamento por data
+// Fetch de mensagens com agrupamento por data E FILTRO
+function fetchMessages() {
+    fetch('{{ route("chat.fetch") }}')
+        .then(res => res.json())
+        .then(msgs => {
+            // 🔥 FILTRA SE UM USUÁRIO FOI SELECIONADO
+            const filteredMsgs = selectedUserId 
+                ? msgs.filter(msg => msg.user_id === selectedUserId)
+                : msgs;
+            
+            const newIds = filteredMsgs.map(m => m.id);
+            const shouldScroll = lastMessageCount < filteredMsgs.length || chatBox.scrollTop >= chatBox.scrollHeight - chatBox.clientHeight - 50;
+
+            let htmlContent = [];
+            let lastDate = null;
+
+            // Se não há mensagens do usuário selecionado
+            if (filteredMsgs.length === 0 && selectedUserId !== null) {
+                chatBox.innerHTML = `
+                    <div class="empty-state">
+                        <h2>📭 Nenhuma mensagem</h2>
+                        <p>Este usuário ainda não enviou mensagens.</p>
+                    </div>
+                `;
+                lastMessageCount = 0;
+                messageIds = [];
+                return;
+            }
+
+            filteredMsgs.forEach(msg => {
+                const msgDate = new Date(msg.created_at);
+                
+                // Adiciona separador de data se mudou
+                if (!lastDate || !isSameDay(msgDate, lastDate)) {
+                    htmlContent.push(`
+                        <div class="date-separator">
+                            <span>${formatDateLabel(msgDate)}</span>
+                        </div>
+                    `);
+                    lastDate = msgDate;
                 }
-                lastMessageCount = msgs.length;
+                htmlContent.push(renderMessage(msg));
             });
-    }
 
-    setInterval(fetchMessages, 2000);
+            // Atualiza o chat
+            if (newIds.length !== messageIds.length || JSON.stringify(newIds) !== JSON.stringify(messageIds)) {
+                chatBox.innerHTML = htmlContent.join('');
+                messageIds = newIds;
+                if (shouldScroll || newIds.length > lastMessageCount) {
+                    scrollToBottom();
+                }
+            }
+            lastMessageCount = newIds.length;
+        })
+        .catch(error => console.error('Erro ao buscar mensagens:', error));
+}
+
+setInterval(fetchMessages, 2000);
 
     // Funções auxiliares
     function escapeHtml(text) {

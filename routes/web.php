@@ -42,6 +42,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/api/active-notices', [NoticeController::class, 'getActiveNotices'])->name('active.notices');
     Route::get('/notices/{notice}', [NoticeController::class, 'show'])->name('notices.show');
     Route::resource('notices', NoticeController::class);
+    Route::get('notices/{notice}/download', [NoticeController::class, 'download'])->name('notices.download');
 
     Route::post('/unlock-badge', [BadgeController::class, 'checkAndUnlock'])->name('unlock.badge');
 

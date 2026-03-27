@@ -10,14 +10,12 @@ return new class extends Migration
     {
         Schema::create('notices', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->string('title');
-            $table->text('body');
-            $table->enum('priority', ['normal', 'importante', 'urgente'])->default('normal');
-            $table->string('color')->default('#e50000');
-            $table->string('media_path')->nullable(); // ← novo campo
-            $table->string('media_type')->nullable(); // ← 'image' ou 'video'
-            $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
-            $table->boolean('active')->default(true);
+            $table->longText('description');
+            $table->string('file_path')->nullable();
+            $table->string('file_name')->nullable();
+            $table->string('file_mime_type')->nullable();
             $table->timestamps();
         });
     }

@@ -125,9 +125,6 @@
             <a href="{{ route('notices.index') }}">Avisos</a>
             <a href="{{ route('chat.index') }}">Chat</a>
 
-            <button class="theme-toggle" id="globalThemeToggle" title="Alternar tema">
-                <span class="theme-icon">🌙</span>
-            </button>
             @if(auth()->user()->isAdmin())
                 <a href="{{ route('admin.dashboard') }}">⚙️ Admin</a>
             @endif
@@ -199,37 +196,6 @@ function closeWelcomeModal() { document.getElementById('welcomeModal').style.dis
 </script>
 @endif
 
-<script>
-    const themeToggle = document.getElementById('globalThemeToggle');
-    const htmlElement = document.documentElement;
-    const themeIcon = document.querySelector('.theme-icon');
-
-    function initTheme() {
-        const savedTheme = localStorage.getItem('tapemag-theme') || 
-                          (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-        applyTheme(savedTheme);
-    }
-
-    function applyTheme(theme) {
-        if (theme === 'light') {
-            htmlElement.classList.add('light-mode');
-            themeIcon.textContent = '☀️';
-            localStorage.setItem('tapemag-theme', 'light');
-        } else {
-            htmlElement.classList.remove('light-mode');
-            themeIcon.textContent = '🌙';
-            localStorage.setItem('tapemag-theme', 'dark');
-        }
-    }
-
-    themeToggle.addEventListener('click', () => {
-        const currentTheme = htmlElement.classList.contains('light-mode') ? 'light' : 'dark';
-        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-        applyTheme(newTheme);
-    });
-
-    initTheme();
-</script>
 <!-- ALERT DE BEM-VINDO A CADA LOGIN -->
 @if(session('welcome'))
 <style>
@@ -311,9 +277,6 @@ setTimeout(() => {
 }, 8000);
 </script>
 @endif
-
-
-
 
 </body>
 </html>
