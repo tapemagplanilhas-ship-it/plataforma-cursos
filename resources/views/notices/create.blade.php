@@ -112,8 +112,8 @@
         </div>
 
         <div class="form-group">
-            <label for="media_path" class="form-label">Imagem ou Vídeo (opcional)</label>
-            <input type="file" id="media_path" name="media_path" class="form-input" accept="image/*,video/*">
+            <label for="media_path" class="form-label">Arquivos, Imagens ou Vídeos (opcional)</label>
+            <input type="file" id="media_path" name="media_path" class="form-input" accept="image/*,video/*, application/pdf, .doc, .docx, .xls, .xlsx, .ppt, .pptx, .txt, .zip, .rar">
             @error('media_path') <span style="color: #ff4444;">{{ $message }}</span> @enderror
         </div>
 
