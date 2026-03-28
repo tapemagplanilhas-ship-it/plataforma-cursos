@@ -251,7 +251,11 @@
         <div class="creator-date">Publicado em {{ $notice->created_at->format('d/m/Y \à\s H:i') }}</div>
     </div>
 </div>
-
+@if($notice->file_path)
+    <a href="{{ route('notices.download', $notice) }}" class="btn-download">
+        ⬇️ Download: {{ $notice->file_name }}
+    </a>
+@endif
 <!-- Modal de Confirmação de Deleção -->
 <div id="deleteModal" class="modal-delete">
     <div class="modal-delete-content">

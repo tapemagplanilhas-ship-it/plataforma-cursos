@@ -7,15 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 class Notice extends Model
 {
     protected $fillable = [
-        'title',
-        'body',
-        'priority',
-        'color',
-        'media_path',
-        'media_type',
-        'created_by',
-        'active',
-    ];
+    'title',
+    'body',
+    'priority',
+    'color',
+    'media_path',
+    'media_type',
+    'created_by',
+    'active',
+];
 
     public function creator()
     {
