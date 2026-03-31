@@ -24,6 +24,7 @@ return new class extends Migration
                 'mkt',
                 'vendas',
                 'estoque',
+                'supervisao_vendas',
                 'caixa',
                 'gerencia',
                 'diretoria',

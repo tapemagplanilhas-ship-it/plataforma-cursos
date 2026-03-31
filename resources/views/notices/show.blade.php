@@ -111,6 +111,13 @@
         border-radius: 12px;
         background: #111;
     }
+    .notice-detail-media iframe {
+        width: 100%;
+        height: 600px;
+        border: none;
+        border-radius: 12px;
+        background: #111;
+    }
     .notice-detail-body {
         background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
         border: 2px solid #333;
@@ -138,6 +145,31 @@
         font-size: 0.9rem;
         margin-top: 5px;
     }
+    
+    /* ESTILO PREMIUM PARA O BOTÃO DE DOWNLOAD */
+    .btn-download-premium {
+        display: block;
+        text-align: center;
+        padding: 15px 30px;
+        background: linear-gradient(135deg, #e50000 0%, #ff4444 100%);
+        color: #fff;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 900;
+        font-size: 1.1rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.3s;
+        box-shadow: 0 10px 20px rgba(229,0,0,0.3);
+        margin-top: 20px;
+        border: none;
+    }
+    .btn-download-premium:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 30px rgba(229,0,0,0.5);
+        color: #fff;
+    }
+
     .modal-delete {
         display: none;
         position: fixed;
@@ -229,6 +261,7 @@
         </div>
     </div>
 
+    <!-- BLOCO DE MÍDIA CORRIGIDO -->
     @if($notice->media_path)
         <div class="notice-detail-media">
             @if(str_contains($notice->media_type, 'image'))
@@ -238,24 +271,29 @@
                     <source src="{{ asset('storage/' . $notice->media_path) }}" type="{{ $notice->media_type }}">
                     Seu navegador não suporta vídeo.
                 </video>
+            @elseif(str_contains($notice->media_type, 'pdf') || $notice->media_type === 'document')
+                <iframe src="{{ asset('storage/' . $notice->media_path) }}"></iframe>
             @endif
         </div>
     @endif
 
     <div class="notice-detail-body">
-        {{ $notice->body }}
+        {{ $notice->body ?? $notice->description }}
     </div>
 
     <div class="notice-detail-creator">
         <div class="creator-name">👤 {{ $notice->creator->name ?? 'Sistema' }}</div>
         <div class="creator-date">Publicado em {{ $notice->created_at->format('d/m/Y \à\s H:i') }}</div>
     </div>
+
+    <!-- BOTÃO DE DOWNLOAD CORRIGIDO E MOVIDO PARA DENTRO DO CONTAINER -->
+    @if($notice->media_path)
+        <a href="{{ route('notices.download', $notice->id) }}" class="btn-download-premium">
+            ⬇️ Baixar Arquivo Anexado
+        </a>
+    @endif
 </div>
-@if($notice->file_path)
-    <a href="{{ route('notices.download', $notice) }}" class="btn-download">
-        ⬇️ Download: {{ $notice->file_name }}
-    </a>
-@endif
+
 <!-- Modal de Confirmação de Deleção -->
 <div id="deleteModal" class="modal-delete">
     <div class="modal-delete-content">

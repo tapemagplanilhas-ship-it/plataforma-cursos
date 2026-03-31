@@ -8,13 +8,14 @@ class Notice extends Model
 {
     protected $fillable = [
     'title',
-    'body',
+    'description',
     'priority',
     'color',
     'media_path',
     'media_type',
     'created_by',
     'active',
+    'user_id',
 ];
 
     public function creator()

@@ -89,9 +89,9 @@
         </div>
 
         <div class="form-group">
-            <label for="body" class="form-label">Conteúdo *</label>
-            <textarea id="body" name="body" class="form-textarea" placeholder="Escreva o conteúdo do aviso..." required></textarea>
-            @error('body') <span style="color: #ff4444;">{{ $message }}</span> @enderror
+            <label for="description" class="form-label">Conteúdo *</label>
+            <textarea id="description" name="description" class="form-textarea" placeholder="Escreva o conteúdo do aviso..." required></textarea>
+            @error('description') <span style="color: #ff4444;">{{ $message }}</span> @enderror
         </div>
 
         <div class="form-group">

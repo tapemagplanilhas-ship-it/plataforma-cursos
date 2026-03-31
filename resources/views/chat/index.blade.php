@@ -885,7 +885,7 @@ button {
 
         <div class="users-list" id="users-list">
             @foreach($users as $user)
-                <div class="user-item" onclick="selectUser({{ $user->id }}, '{{ $user->name }}')">
+                <div class="user-item" onclick="selectUser({{ $user->id }}, '{{ $user->name }}', this)">
                     <div class="user-avatar">{{ substr($user->name, 0, 1) }}</div>
                     <div class="user-info">
                         <div class="user-name">{{ $user->name }}</div>
@@ -1051,28 +1051,26 @@ button {
         charCount.textContent = chatInput.value.length + '/500';
     });
 
-    // Selecionar usuário da sidebar
-    // Selecionar usuário da sidebar
-function selectUser(userId, userName) {
+function selectUser(userId, userName, element) {
     selectedUserId = userId;
     selectedUserSpan.textContent = userName;
-    
-    // Remove classe active anterior
+    chatInput.placeholder = `Mensagem privada para ${userName}...`;
+
     document.querySelectorAll('.user-item').forEach(item => {
         item.classList.remove('active');
     });
-    
-    // Adiciona classe active ao item clicado
-    event.currentTarget.classList.add('active');
-    
-    // 🔥 RECARREGA AS MENSAGENS FILTRADAS
+
+    element.classList.add('active');
     fetchMessages();
 }
 
-// Resetar filtro para "Todos"
+// 2. Resetar filtro para "Todos"
 function resetUserFilter() {
     selectedUserId = null;
     selectedUserSpan.textContent = 'Todos';
+    
+    // 🔥 UX UPDATE: Volta o placeholder para o chat geral
+    document.getElementById('chat-input').placeholder = "Digite sua mensagem para todos...";
     
     // Remove classe active de todos os usuários
     document.querySelectorAll('.user-item').forEach(item => {
@@ -1082,6 +1080,42 @@ function resetUserFilter() {
     // Recarrega todas as mensagens
     fetchMessages();
 }
+
+// 3. Enviar mensagem (Blindado contra string "null")
+document.getElementById('chat-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const body = chatInput.value.trim();
+    if (!body && !selectedFile) return;
+
+    const formData = new FormData();
+    formData.append('body', body);
+    
+    // 🛡️ CORREÇÃO CRÍTICA: Só faz o append se o ID existir. 
+    // Evita enviar a string "null" que quebra a validação do Laravel.
+    if (selectedUserId !== null) {
+        formData.append('recipient_id', selectedUserId);
+    }
+    
+    if (selectedFile) {
+        formData.append('media', selectedFile);
+    }
+    formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+
+    fetch('{{ route("chat.store") }}', {
+        method: 'POST',
+        body: formData,
+    }).then(response => {
+        if(response.ok) {
+            chatInput.value = '';
+            charCount.textContent = '0/500';
+            removeFile();
+            fetchMessages();
+        } else {
+            console.error("Erro 422: Falha na validação do Laravel. Verifique o recipient_id no Controller.");
+        }
+    });
+});
 
     // Preview de arquivo
     fileInput.addEventListener('change', (e) => {
@@ -1102,76 +1136,76 @@ function resetUserFilter() {
         filePreview.innerHTML = '';
     }
 
-    // Enviar mensagem
-    document.getElementById('chat-form').addEventListener('submit', (e) => {
-        e.preventDefault();
+function renderMessage(msg) {
+    const isMine = Number(msg.user_id) === Number(currentId);
+    const userName = escapeHtml(msg.user?.name || 'Usuário');
+    const body = msg.body ?? '';
+    const safeBody = escapeHtml(body);
+    const mediaType = msg.media_type ?? '';
+    const mediaPath = msg.media_path ?? '';
 
-        const body = chatInput.value.trim();
-        if (!body && !selectedFile) return;
+    const isImage = mediaType.includes('image');
+    const isVideo = mediaType.includes('video');
+    const isFile = mediaPath && !isImage && !isVideo;
 
-        const formData = new FormData();
-        formData.append('body', body);
-        if (selectedFile) {
-            formData.append('media', selectedFile);
-        }
-        formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+    let mediaHtml = '';
 
-        fetch('{{ route("chat.store") }}', {
-            method: 'POST',
-            body: formData,
-        }).then(() => {
-            chatInput.value = '';
-            charCount.textContent = '0/500';
-            removeFile();
-            fetchMessages();
-        });
-    });
-
-    // Fetch de mensagens - SEM FLICKER
-    function renderMessage(msg) {
-        const isMine = msg.user_id === currentId;
-        const isImage = msg.media_type && msg.media_type.includes('image');
-        const isVideo = msg.media_type && msg.media_type.includes('video');
-        const isFile = msg.media_path && !isImage && !isVideo;
-
-        let mediaHtml = '';
-        if (msg.media_path) {
-            if (isImage) {
-                mediaHtml = `<div class="msg-media"><img src="/storage/${msg.media_path}" alt="Imagem"></div>`;
-            } else if (isVideo) {
-                mediaHtml = `<div class="msg-media"><video controls><source src="/storage/${msg.media_path}" type="${msg.media_type}"></video></div>`;
-            } else if (isFile) {
-                const filename = msg.media_path.split('/').pop();
-                mediaHtml = `<a href="/storage/${msg.media_path}" download class="msg-file">📄 ${filename}</a>`;
-            }
-        }
-
-        const time = new Date(msg.created_at).toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
-        const actions = isMine ? `
-            <div class="msg-actions">
-                ${msg.body ? `<button class="msg-action-btn" onclick="openEditModal(${msg.id}, '${msg.body.replace(/'/g, "\'")}')">✏️</button>` : ''}
-                <button class="msg-action-btn" onclick="deleteMessage(${msg.id})">🗑️</button>
-            </div>
-        ` : '';
-
-        return `
-            <div class="msg-bubble ${isMine ? 'mine' : 'other'}" data-msg-id="${msg.id}">
-                <div class="msg-header">
-                    <span class="msg-name">${escapeHtml(msg.user.name)}</span>
+    if (mediaPath) {
+        if (isImage) {
+            mediaHtml = `
+                <div class="msg-media">
+                    <img src="/storage/${mediaPath}" alt="Imagem">
                 </div>
-                <div class="msg-container">
-                    <div class="msg-content">
-                        ${msg.body ? `<div class="msg-text">${escapeHtml(msg.body)}</div>` : ''}
-                        ${mediaHtml}
-                        <div class="msg-meta">
-                            <span>${time}</span>
-                            ${actions}
-                        </div>
+            `;
+        } else if (isVideo) {
+            mediaHtml = `
+                <div class="msg-media">
+                    <video controls>
+                        <source src="/storage/${mediaPath}" type="${mediaType}">
+                    </video>
+                </div>
+            `;
+        } else if (isFile) {
+            const filename = mediaPath.split('/').pop() || 'arquivo';
+            mediaHtml = `
+                <a href="/storage/${mediaPath}" download class="msg-file">
+                    📄 ${escapeHtml(filename)}
+                </a>
+            `;
+        }
+    }
+
+    const time = msg.created_at
+        ? new Date(msg.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+        : '--:--';
+
+    const safeBodyForEdit = JSON.stringify(body);
+
+    const actions = isMine ? `
+        <div class="msg-actions">
+            ${body ? `<button class="msg-action-btn" onclick='openEditModal(${msg.id}, ${safeBodyForEdit})'>✏️</button>` : ''}
+            <button class="msg-action-btn" onclick="deleteMessage(${msg.id})">🗑️</button>
+        </div>
+    ` : '';
+
+    return `
+        <div class="msg-bubble ${isMine ? 'mine' : 'other'}" data-msg-id="${msg.id}">
+            <div class="msg-header">
+                <span class="msg-name">${userName}</span>
+            </div>
+            <div class="msg-container">
+                <div class="msg-content">
+                    ${body ? `<div class="msg-text">${safeBody}</div>` : ''}
+                    ${mediaHtml}
+                    <div class="msg-meta">
+                        <span>${time}</span>
+                        ${actions}
                     </div>
                 </div>
             </div>
-        `;
-    }
+        </div>
+    `;
+}
 
    // Funções auxiliares de data
 function isSameDay(d1, d2) {
@@ -1197,16 +1231,26 @@ function formatDateLabel(date) {
     return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
 }
 
-// Fetch de mensagens com agrupamento por data
-// Fetch de mensagens com agrupamento por data E FILTRO
+
+// Fetch de mensagens com agrupamento por data E FILTRO CORRETO
 function fetchMessages() {
-    fetch('{{ route("chat.fetch") }}')
+    // 🔥 CORREÇÃO 1: Avisa o Laravel qual usuário está selecionado via URL
+    const url = selectedUserId 
+        ? `{{ route("chat.fetch") }}?selected_user_id=${selectedUserId}` 
+        : '{{ route("chat.fetch") }}';
+
+    fetch(url)
         .then(res => res.json())
         .then(msgs => {
-            // 🔥 FILTRA SE UM USUÁRIO FOI SELECIONADO
+            
+            // 🔥 CORREÇÃO 2: Filtro inteligente no Frontend
+            // Garante que mostra o que você enviou PARA ele e o que ele enviou PARA você
             const filteredMsgs = selectedUserId 
-                ? msgs.filter(msg => msg.user_id === selectedUserId)
-                : msgs;
+                ? msgs.filter(msg => 
+                    (msg.user_id === selectedUserId && msg.recipient_id === currentId) || 
+                    (msg.user_id === currentId && msg.recipient_id === selectedUserId)
+                  )
+                : msgs.filter(msg => msg.recipient_id === null); // Chat Geral
             
             const newIds = filteredMsgs.map(m => m.id);
             const shouldScroll = lastMessageCount < filteredMsgs.length || chatBox.scrollTop >= chatBox.scrollHeight - chatBox.clientHeight - 50;
@@ -1214,12 +1258,15 @@ function fetchMessages() {
             let htmlContent = [];
             let lastDate = null;
 
-            // Se não há mensagens do usuário selecionado
-            if (filteredMsgs.length === 0 && selectedUserId !== null) {
+            // Se não há mensagens no chat atual
+            if (filteredMsgs.length === 0) {
+                const emptyTitle = selectedUserId ? '📭 Nenhuma mensagem' : '🚀 Seja o primeiro a conversar!';
+                const emptyText = selectedUserId ? 'Envie um "Olá" para iniciar a conversa privada.' : 'Envie uma mensagem para iniciar a conversa com sua equipe no chat geral.';
+                
                 chatBox.innerHTML = `
                     <div class="empty-state">
-                        <h2>📭 Nenhuma mensagem</h2>
-                        <p>Este usuário ainda não enviou mensagens.</p>
+                        <h2>${emptyTitle}</h2>
+                        <p>${emptyText}</p>
                     </div>
                 `;
                 lastMessageCount = 0;
@@ -1242,7 +1289,7 @@ function fetchMessages() {
                 htmlContent.push(renderMessage(msg));
             });
 
-            // Atualiza o chat
+            // Atualiza o chat apenas se houver mudanças
             if (newIds.length !== messageIds.length || JSON.stringify(newIds) !== JSON.stringify(messageIds)) {
                 chatBox.innerHTML = htmlContent.join('');
                 messageIds = newIds;
@@ -1259,15 +1306,15 @@ setInterval(fetchMessages, 2000);
 
     // Funções auxiliares
     function escapeHtml(text) {
-        const map = {
-            '&': '&amp;',
-            '&lt;': '&lt;',
-            '>': '&gt;',
-            '"': '&quot;',
-            "'": '&#039;'
-        };
-        return text.replace(/[&&lt;>"']/g, m => map[m]);
-    }
+    if (text === null || text === undefined) return '';
+
+    return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
 
     function openEmojiPicker() {
         if (navigator.userAgentData?.platform === 'Windows') {

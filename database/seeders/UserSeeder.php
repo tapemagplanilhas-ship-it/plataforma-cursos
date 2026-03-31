@@ -23,7 +23,7 @@ class UserSeeder extends Seeder
 
             // RH
             ['name' => 'Beatriz',        'email' => 'beatriz.veras@tapemag.com.br',  'role' => 'rh'],
-            ['name' => 'Recrutamento',   'email' => 'recrutamento@tapemag.com.br',   'role' => 'rh'],
+            
 
             // FISCAL
             ['name' => 'Carlos',         'email' => 'carlos.oliveira@tapemag.com.br','role' => 'fiscal'],
@@ -39,6 +39,7 @@ class UserSeeder extends Seeder
             // MKT
             ['name' => 'Tiago',          'email' => 'contato@tapemag.com.br',        'role' => 'mkt'],
 
+            ['name' => 'Kelly Godoi',   'email' => 'kelly.godoi@tapemag.com.br',   'role' => 'supervisao_vendas'],
             // VENDAS
             ['name' => 'Elisandro',      'email' => 'elisandro@tapemag.com.br',      'role' => 'vendas'],
             ['name' => 'Eliseu',         'email' => 'eliseu@tapemag.com.br',         'role' => 'vendas'],
@@ -51,7 +52,7 @@ class UserSeeder extends Seeder
             ['name' => 'Leonardo',       'email' => 'vendas9@tapemag.com.br',        'role' => 'vendas'],
             ['name' => 'Nicolly',        'email' => 'vendas10@tapemag.com.br',       'role' => 'vendas'],
             ['name' => 'Juan',           'email' => 'vendas11@tapemag.com.br',       'role' => 'vendas'],
-            ['name' => 'Julia',          'email' => 'vendas12@tapemag.com.br',       'role' => 'vendas'],
+            ['name' => 'Gabriel',          'email' => 'apoio.vendas@tapemag.com.br',       'role' => 'vendas'],
 
             // ESTOQUE
             ['name' => 'Estoque',        'email' => 'estoque@tapemag.com.br',        'role' => 'estoque'],
