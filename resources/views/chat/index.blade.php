@@ -754,6 +754,7 @@ button {
     box-shadow: 0 0 0 2px var(--border-active);
 }
 
+
 .char-edit-count {
     font-size: var(--font-sm);
     color: var(--color-text-muted);
