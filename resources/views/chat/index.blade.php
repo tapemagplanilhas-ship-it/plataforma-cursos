@@ -1021,7 +1021,7 @@ button {
                             maxlength="500"
                         >
                         <span class="input-icon" onclick="document.getElementById('file-input').click()" title="Upload de arquivo">📎</span>
-                        <input type="file" id="file-input" style="display: none;" accept="image/*,video/*,.pdf,.doc,.docx">
+                        <input type="file" id="file-input" style="display: none;" accept="image/*,video/*,.pdf,.doc,.docx,.xlsx,.txt, application/*,.zip,.rar,.7z,.tar,.gz,.mp3,.wav,.ogg">
                         <span class="char-count" id="char-count">0/500</span>
                     </div>
                     <button type="submit">Enviar 📤</button>
@@ -1068,7 +1068,28 @@ button {
     let lastMessageCount = 0;
     let messageIds = [];
     let selectedUserId = null;
+    let sidebarPaused = false;
+    let sidebarPauseTimer = null;
+    let lastSidebarHash = '';
 
+
+    usersList.addEventListener('scroll', () => pauseSidebarRefresh(1800));
+usersList.addEventListener('mouseenter', () => pauseSidebarRefresh(1800));
+usersList.addEventListener('wheel', () => pauseSidebarRefresh(1800));
+usersList.addEventListener('touchstart', () => pauseSidebarRefresh(1800));
+usersList.addEventListener('touchmove', () => pauseSidebarRefresh(1800));
+
+function buildSidebarHash(users) {
+    return JSON.stringify(
+        users.map(user => ({
+            id: user.id,
+            unread_count: user.unread_count || 0,
+            last_message_body: user.last_message_body || '',
+            last_message_time: user.last_message_time || '',
+            last_message_at: user.last_message_at || 0
+        }))
+    );
+}
     // Scroll para o final
     function scrollToBottom() {
         chatBox.scrollTop = chatBox.scrollHeight;
@@ -1431,14 +1452,17 @@ setInterval(fetchMessages, 2000);
     });
 
     function renderUsersList(users) {
+    const previousScrollTop = usersList.scrollTop;
+    const previousSelectedId = selectedUserId;
+
     usersList.innerHTML = '';
 
     users.forEach(user => {
-        const isActive = Number(selectedUserId) === Number(user.id);
+        const isActive = Number(previousSelectedId) === Number(user.id);
 
         const item = document.createElement('div');
         item.className = `user-item ${isActive ? 'active' : ''}`;
-        item.setAttribute('onclick', `selectUser(${user.id}, ${JSON.stringify(user.name)}, this)`);
+        item.dataset.userId = user.id;
 
         item.innerHTML = `
             <div class="user-avatar">${escapeHtml((user.name || 'U').charAt(0).toUpperCase())}</div>
@@ -1456,24 +1480,50 @@ setInterval(fetchMessages, 2000);
             </div>
         `;
 
+        item.onclick = () => selectUser(user.id, user.name, item);
         usersList.appendChild(item);
     });
+
+    usersList.scrollTop = previousScrollTop;
 }
 
 function reloadSidebar() {
     fetch(`{{ route("chat.sidebarUsers") }}`)
         .then(res => res.json())
         .then(users => {
+            const newHash = buildSidebarHash(users);
+
+            if (newHash === lastSidebarHash) {
+                return;
+            }
+
+            lastSidebarHash = newHash;
             renderUsersList(users);
         })
         .catch(error => console.error('Erro ao recarregar sidebar:', error));
 }
+
+function pauseSidebarRefresh(ms = 1500) {
+    sidebarPaused = true;
+    clearTimeout(sidebarPauseTimer);
+
+    sidebarPauseTimer = setTimeout(() => {
+        sidebarPaused = false;
+    }, ms);
+}
+
 fetchMessages();
 reloadSidebar();
 
 setInterval(() => {
     fetchMessages();
-    reloadSidebar();
 }, 2000);
+
+setInterval(() => {
+    if (!sidebarPaused) {
+        reloadSidebar();
+    }
+}, 5000);
+
 </script>
 @endsection
