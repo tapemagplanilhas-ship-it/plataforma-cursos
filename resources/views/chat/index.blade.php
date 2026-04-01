@@ -775,6 +775,22 @@ button {
     transition: all var(--trans-fast);
 }
 
+.user-badge {
+    min-width: 22px;
+    height: 22px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: #e50000;
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 0 2px rgba(229, 0, 0, 0.15);
+    flex-shrink: 0;
+}
+
 .edit-modal-btn-save {
     background: var(--color-primary-gradient);
     color: var(--color-text-light);
@@ -884,19 +900,32 @@ button {
         </div>
 
         <div class="users-list" id="users-list">
-            @foreach($users as $user)
-                <div class="user-item" onclick="selectUser({{ $user->id }}, '{{ $user->name }}', this)">
-                    <div class="user-avatar">{{ substr($user->name, 0, 1) }}</div>
-                    <div class="user-info">
-                        <div class="user-name">{{ $user->name }}</div>
-                        <div class="user-status">
-                            <div class="status-dot"></div>
-                            <span>Online</span>
-                        </div>
-                    </div>
+    @foreach($users as $user)
+        <div class="user-item" onclick='selectUser({{ $user["id"] }}, @json($user["name"]), this)'>
+            <div class="user-avatar">{{ strtoupper(substr($user['name'], 0, 1)) }}</div>
+
+            <div class="user-info">
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+                    <div class="user-name">{{ $user['name'] }}</div>
+
+                    @if($user['unread_count'] > 0)
+                        <div class="user-badge">{{ $user['unread_count'] }}</div>
+                    @endif
                 </div>
-            @endforeach
+
+                <div class="user-status" style="justify-content:space-between;">
+                    <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:140px;">
+                        {{ $user['last_message_body'] ?: 'Sem mensagens' }}
+                    </span>
+
+                    @if($user['last_message_time'])
+                        <span>{{ $user['last_message_time'] }}</span>
+                    @endif
+                </div>
+            </div>
         </div>
+    @endforeach
+</div>
     </div>
 
     <!-- CHAT MAIN -->
@@ -1053,32 +1082,33 @@ button {
 
 function selectUser(userId, userName, element) {
     selectedUserId = userId;
-    selectedUserSpan.textContent = userName;
-    chatInput.placeholder = `Mensagem privada para ${userName}...`;
+    selectedUserSpan.textContent = userName || 'Usuário';
+    chatInput.placeholder = `Mensagem privada para ${userName || 'Usuário'}...`;
 
     document.querySelectorAll('.user-item').forEach(item => {
         item.classList.remove('active');
     });
 
-    element.classList.add('active');
+    if (element) {
+        element.classList.add('active');
+    }
+
     fetchMessages();
+    reloadSidebar();
 }
 
 // 2. Resetar filtro para "Todos"
 function resetUserFilter() {
     selectedUserId = null;
     selectedUserSpan.textContent = 'Todos';
-    
-    // 🔥 UX UPDATE: Volta o placeholder para o chat geral
-    document.getElementById('chat-input').placeholder = "Digite sua mensagem para todos...";
-    
-    // Remove classe active de todos os usuários
+    chatInput.placeholder = 'Digite sua mensagem para todos...';
+
     document.querySelectorAll('.user-item').forEach(item => {
         item.classList.remove('active');
     });
-    
-    // Recarrega todas as mensagens
+
     fetchMessages();
+    reloadSidebar();
 }
 
 // 3. Enviar mensagem (Blindado contra string "null")
@@ -1106,16 +1136,18 @@ document.getElementById('chat-form').addEventListener('submit', (e) => {
         method: 'POST',
         body: formData,
     }).then(response => {
-        if(response.ok) {
-            chatInput.value = '';
-            charCount.textContent = '0/500';
-            removeFile();
-            fetchMessages();
-        } else {
-            console.error("Erro 422: Falha na validação do Laravel. Verifique o recipient_id no Controller.");
-        }
-    });
+    if (response.ok) {
+        chatInput.value = '';
+        charCount.textContent = '0/500';
+        removeFile();
+        fetchMessages();
+        reloadSidebar();
+    } else {
+        console.error('Erro ao enviar mensagem');
+    }
 });
+    });
+
 
     // Preview de arquivo
     fileInput.addEventListener('change', (e) => {
@@ -1396,5 +1428,51 @@ setInterval(fetchMessages, 2000);
             closeEditModal();
         }
     });
+
+    function renderUsersList(users) {
+    usersList.innerHTML = '';
+
+    users.forEach(user => {
+        const isActive = Number(selectedUserId) === Number(user.id);
+
+        const item = document.createElement('div');
+        item.className = `user-item ${isActive ? 'active' : ''}`;
+        item.setAttribute('onclick', `selectUser(${user.id}, ${JSON.stringify(user.name)}, this)`);
+
+        item.innerHTML = `
+            <div class="user-avatar">${escapeHtml((user.name || 'U').charAt(0).toUpperCase())}</div>
+            <div class="user-info">
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+                    <div class="user-name">${escapeHtml(user.name || 'Usuário')}</div>
+                    ${user.unread_count > 0 ? `<div class="user-badge">${user.unread_count}</div>` : ''}
+                </div>
+                <div class="user-status" style="justify-content:space-between;">
+                    <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:140px;">
+                        ${escapeHtml(user.last_message_body || 'Sem mensagens')}
+                    </span>
+                    ${user.last_message_time ? `<span>${escapeHtml(user.last_message_time)}</span>` : ''}
+                </div>
+            </div>
+        `;
+
+        usersList.appendChild(item);
+    });
+}
+
+function reloadSidebar() {
+    fetch(`{{ route("chat.sidebarUsers") }}`)
+        .then(res => res.json())
+        .then(users => {
+            renderUsersList(users);
+        })
+        .catch(error => console.error('Erro ao recarregar sidebar:', error));
+}
+fetchMessages();
+reloadSidebar();
+
+setInterval(() => {
+    fetchMessages();
+    reloadSidebar();
+}, 2000);
 </script>
 @endsection

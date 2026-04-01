@@ -44,6 +44,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('notices', NoticeController::class);
     Route::get('notices/{notice}/download', [NoticeController::class, 'download'])->name('notices.download');
 
+    Route::get('/chat/sidebar-users', [MessageController::class, 'sidebarUsers'])->name('chat.sidebarUsers');
+
     Route::post('/unlock-badge', [BadgeController::class, 'checkAndUnlock'])->name('unlock.badge');
 
     // Admin
