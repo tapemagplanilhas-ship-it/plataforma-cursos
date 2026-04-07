@@ -234,6 +234,40 @@
     .modal-btn-cancel:hover {
         background: #555;
     }
+    .notice-image-wrapper {
+    position: relative;
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.notice-image-download-btn {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 46px;
+    height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    border-radius: 50%;
+    background: rgba(10, 10, 10, 0.78);
+    color: #fff;
+    font-size: 1.2rem;
+    font-weight: 900;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    backdrop-filter: blur(6px);
+    z-index: 5;
+    transition: all 0.25s ease;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+}
+
+.notice-image-download-btn:hover {
+    background: rgba(229, 0, 0, 0.95);
+    color: #fff;
+    transform: translateY(-2px) scale(1.05);
+}
 </style>
 
 <div class="notice-detail-container">
@@ -263,19 +297,29 @@
 
     <!-- BLOCO DE MÍDIA CORRIGIDO -->
     @if($notice->media_path)
-        <div class="notice-detail-media">
-            @if(str_contains($notice->media_type, 'image'))
+    <div class="notice-detail-media">
+        @if(str_contains($notice->media_type, 'image'))
+            <div class="notice-image-wrapper">
                 <img src="{{ asset('storage/' . $notice->media_path) }}" alt="{{ $notice->title }}">
-            @elseif(str_contains($notice->media_type, 'video'))
-                <video controls>
-                    <source src="{{ asset('storage/' . $notice->media_path) }}" type="{{ $notice->media_type }}">
-                    Seu navegador não suporta vídeo.
-                </video>
-            @elseif(str_contains($notice->media_type, 'pdf') || $notice->media_type === 'document')
-                <iframe src="{{ asset('storage/' . $notice->media_path) }}"></iframe>
-            @endif
-        </div>
-    @endif
+
+                <a
+                    href="{{ route('notices.download', $notice->id) }}"
+                    class="notice-image-download-btn"
+                    title="Baixar imagem"
+                >
+                    ⬇
+                </a>
+            </div>
+        @elseif(str_contains($notice->media_type, 'video'))
+            <video controls>
+                <source src="{{ asset('storage/' . $notice->media_path) }}" type="{{ $notice->media_type }}">
+                Seu navegador não suporta vídeo.
+            </video>
+        @elseif(str_contains($notice->media_type, 'pdf') || $notice->media_type === 'document')
+            <iframe src="{{ asset('storage/' . $notice->media_path) }}"></iframe>
+        @endif
+    </div>
+@endif
 
     <div class="notice-detail-body">
         {{ $notice->body ?? $notice->description }}
@@ -287,11 +331,11 @@
     </div>
 
     <!-- BOTÃO DE DOWNLOAD CORRIGIDO E MOVIDO PARA DENTRO DO CONTAINER -->
-    @if($notice->media_path)
-        <a href="{{ route('notices.download', $notice->id) }}" class="btn-download-premium">
-            ⬇️ Baixar Arquivo Anexado
-        </a>
-    @endif
+    @if($notice->media_path && !str_contains($notice->media_type, 'image'))
+    <a href="{{ route('notices.download', $notice->id) }}" class="btn-download-premium">
+        ⬇️ Baixar Arquivo Anexado
+    </a>
+@endif
 </div>
 
 <!-- Modal de Confirmação de Deleção -->

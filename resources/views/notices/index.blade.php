@@ -167,7 +167,7 @@
         <div class="mural-buttons">
             @auth
                 <a href="{{ route('courses.index') }}" class="btn btn-secondary">📚 Ir para Cursos</a>
-                @if(Auth::user()->role === 'admin')
+                @if(in_array(Auth::user()->role, ['admin', 'diretoria', 'gerencia', 'rh', 'financeiro']))
                     <a href="{{ route('notices.create') }}" class="btn btn-primary">➕ Publicar Aviso</a>
                 @endif
             @else

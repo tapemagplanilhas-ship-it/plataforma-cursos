@@ -6,6 +6,10 @@ use App\Http\Controllers\CourseController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\NoticeController;
 use App\Http\Controllers\AdminController;
+use Illuminate\Http\Request;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\NotificationController;
+use Illuminate\Support\Facades\Hash;
 
 // Auth
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -17,8 +21,51 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // Mural como página inicial (pública)
 Route::get('/', [NoticeController::class, 'index'])->name('home');
 
+Route::post('/password-prompt/seen', function (Request $request) {
+    $user = $request->user();
+
+    if ($user) {
+        $user->update([
+            'password_change_prompt_seen' => true,
+        ]);
+    }
+
+    return response()->json(['success' => true]);
+})->middleware('auth')->name('password.prompt.seen');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/minha-senha', function () {
+        return view('profile.password-edit');
+    })->name('profile.password.edit');
+
+    Route::post('/minha-senha', function (Request $request) {
+        $request->validate([
+            'current_password' => ['required'],
+            'password' => ['required', 'confirmed', 'min:6'],
+        ]);
+
+        $user = $request->user();
+
+        if (!Hash::check($request->current_password, $user->password)) {
+            return back()->withErrors([
+                'current_password' => 'A senha atual está incorreta.'
+            ])->withInput();
+        }
+
+        $user->password = Hash::make($request->password);
+        $user->save();
+
+        return redirect()->route('courses.index')->with('success', 'Senha alterada com sucesso!');
+    })->name('profile.password.update');
+});
+
 // Área autenticada
 Route::middleware('auth')->group(function () {
+
+    //Notificações
+    Route::get('/notifications/fetch', [NotificationController::class, 'fetch'])->name('notifications.fetch');
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.readAll');
 
     // Cursos
     Route::get('/courses', [CourseController::class, 'index'])->name('courses.index');

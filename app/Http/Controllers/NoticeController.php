@@ -20,12 +20,18 @@ class NoticeController extends Controller
 
     public function create()
     {
+        if (!in_array(strtolower(auth()->user()->role), ['admin', 'diretoria', 'gerencia', 'rh', 'financeiro'])) {
+        abort(403, 'Sem permissão para publicar avisos.');
+    }
         return view('notices.create');
     }
 
     
       public function store(Request $request)
     {
+         if (!in_array(strtolower(auth()->user()->role), ['admin', 'diretoria', 'gerencia', 'rh', 'financeiro'])) {
+        abort(403, 'Sem permissão para publicar avisos.');
+    }
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
@@ -69,22 +75,21 @@ class NoticeController extends Controller
     }
 
     public function download(Notice $notice)
-    {
+{
+    if (!$notice->media_path) {
+        abort(404, 'Arquivo não encontrado.');
+    }
 
-        // CORREÇÃO 2: Usar media_path e o disco public
-        if (!$notice->media_path || !Storage::disk('public')->exists($notice->media_path)) {
-            abort(404, 'Arquivo não encontrado.');
-        }
-        
-        // Pega o nome original ou cria um nome baseado no título
-        $fileName = $notice->title . '.' . pathinfo($notice->media_path, PATHINFO_EXTENSION);
-        
-        return Storage::disk('public')->download($notice->media_path, $fileName);
+    if (!Storage::disk('public')->exists($notice->media_path)) {
+        abort(404, 'Arquivo não encontrado no storage.');
     }
-    public function edit(Notice $notice)
-    {
-        return view('notices.edit', compact('notice'));
-    }
+
+    $extension = pathinfo($notice->media_path, PATHINFO_EXTENSION);
+    $safeTitle = \Illuminate\Support\Str::slug($notice->title ?: 'aviso');
+    $fileName = $safeTitle . '.' . $extension;
+
+    return Storage::disk('public')->download($notice->media_path, $fileName);
+}
 
     public function update(Request $request, Notice $notice)
     {

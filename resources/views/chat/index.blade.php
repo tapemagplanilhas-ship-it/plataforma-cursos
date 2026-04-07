@@ -315,9 +315,6 @@ button {
     50% { opacity: 0.7; transform: scale(0.95); }
 }
 
-/* =====================================================
-   7. CHAT MESSAGES AREA
-   ===================================================== */
 
 /* =====================================================
    7. CHAT MESSAGES AREA (CORRIGIDO PARA SCROLL) ✅
@@ -897,7 +894,7 @@ button {
     <div class="chat-sidebar">
         <div class="sidebar-header">
             <div class="sidebar-title">👥 Usuários Online</div>
-            <div class="online-count"><span id="online-count">{{ count($users) }}</span> online</div>
+            <div class="online-count"><span id="online-count">{{ count($users) }}</span> Usuários</div>
         </div>
 
         <div class="users-list" id="users-list">

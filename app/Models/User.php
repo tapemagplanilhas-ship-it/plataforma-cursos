@@ -16,6 +16,7 @@ class User extends Authenticatable
     'email',
     'password',
     'role',
+    'password_change_prompt_seen',
 ];
 
 protected $hidden = [
@@ -63,5 +64,9 @@ public function badges()
 public function completedCourses()
 {
     return $this->belongsToMany(Course::class, 'course_completions')->withTimestamps();  // Assuma tabela pivot
+}
+public function systemNotifications()
+{
+    return $this->hasMany(\App\Models\Notification::class)->latest();
 }
 }
