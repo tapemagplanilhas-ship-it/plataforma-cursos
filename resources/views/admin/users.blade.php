@@ -2,14 +2,26 @@
 
 @section('content')
 <style>
-    .admin-header { margin-bottom: 30px; }
-    .admin-header h1 { font-size: 1.8rem; color: #fff; }
-    .admin-header h1 span { color: #e50000; }
+    .admin-header { 
+        margin-bottom: 30px; 
+    }
+    
+    .admin-header h1 { 
+        font-size: 1.8rem; 
+        color: var(--text-primary);
+        transition: color 0.3s ease;
+    }
+    
+    .admin-header h1 span { 
+        color: var(--accent);
+        transition: color 0.3s ease;
+    }
 
     .admin-nav {
         display: flex;
         gap: 12px;
         margin-bottom: 24px;
+        flex-wrap: wrap;
     }
 
     .admin-nav a {
@@ -17,19 +29,26 @@
         border-radius: 6px;
         font-size: 0.85rem;
         text-decoration: none;
-        border: 1px solid #222;
-        color: #888;
-        transition: all 0.2s;
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        transition: all 0.3s ease;
+        background: var(--bg-tertiary);
     }
 
     .admin-nav a:hover,
-    .admin-nav a.active { background: #e50000; color: #fff; border-color: #e50000; }
+    .admin-nav a.active { 
+        background: var(--accent); 
+        color: #fff; 
+        border-color: var(--accent);
+        transform: translateY(-2px);
+    }
 
     .users-table {
-        background: #111;
-        border: 1px solid #222;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
         border-radius: 8px;
         overflow: hidden;
+        transition: background-color 0.3s ease, border-color 0.3s ease;
     }
 
     .users-table table {
@@ -38,76 +57,103 @@
     }
 
     .users-table thead {
-        background: #1a1a1a;
-        border-bottom: 1px solid #222;
+        background: var(--bg-tertiary);
+        border-bottom: 1px solid var(--border);
     }
 
     .users-table th {
         padding: 14px 16px;
         text-align: left;
         font-size: 0.8rem;
-        color: #666;
+        color: var(--text-muted);
         text-transform: uppercase;
         letter-spacing: 0.05em;
         font-weight: 600;
+        transition: color 0.3s ease;
     }
 
     .users-table td {
         padding: 12px 16px;
-        border-bottom: 1px solid #1a1a1a;
-        color: #ddd;
+        border-bottom: 1px solid var(--border-light);
+        color: var(--text-secondary);
         font-size: 0.9rem;
+        transition: color 0.3s ease;
     }
 
-    .users-table tbody tr:hover { background: #1a1a1a; }
+    .users-table tbody tr:hover { 
+        background: var(--bg-tertiary);
+        transition: background-color 0.3s ease;
+    }
 
     .role-select {
-        background: #2a2a2a;
-        border: 1px solid #3a3a3a;
-        color: #ddd;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border);
+        color: var(--text-secondary);
         padding: 6px 10px;
         border-radius: 4px;
         font-size: 0.85rem;
         cursor: pointer;
+        transition: all 0.3s ease;
     }
 
-    .role-select:focus { outline: none; border-color: #e50000; }
+    .role-select:focus { 
+        outline: none; 
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(229, 0, 0, 0.1);
+    }
 
     .btn-save {
-        background: #e50000;
+        background: var(--accent);
         color: #fff;
         border: none;
         padding: 6px 12px;
         border-radius: 4px;
         font-size: 0.75rem;
         cursor: pointer;
-        transition: background 0.2s;
+        transition: all 0.3s ease;
     }
 
-    .btn-save:hover { background: #cc0000; }
+    .btn-save:hover { 
+        background: var(--accent-hover);
+        transform: translateY(-2px);
+    }
 
     .btn-delete {
         background: transparent;
-        color: #e50000;
-        border: 1px solid #e50000;
+        color: var(--accent);
+        border: 1px solid var(--accent);
         padding: 6px 12px;
         border-radius: 4px;
         font-size: 0.75rem;
         cursor: pointer;
-        transition: all 0.2s;
+        transition: all 0.3s ease;
     }
 
-    .btn-delete:hover { background: #e50000; color: #fff; }
+    .btn-delete:hover { 
+        background: var(--accent); 
+        color: #fff;
+        transform: translateY(-2px);
+    }
 
     .alert {
         padding: 14px 16px;
         border-radius: 6px;
         margin-bottom: 16px;
         font-size: 0.85rem;
+        transition: all 0.3s ease;
     }
 
-    .alert-success { background: #0d2817; color: #4ade80; border: 1px solid #22c55e; }
-    .alert-error { background: #2d0a0a; color: #f87171; border: 1px solid #ef4444; }
+    .alert-success { 
+        background: rgba(74, 222, 128, 0.1); 
+        color: #4ade80; 
+        border: 1px solid #22c55e;
+    }
+    
+    .alert-error { 
+        background: rgba(229, 0, 0, 0.1); 
+        color: #f87171; 
+        border: 1px solid var(--accent);
+    }
 </style>
 
 <div class="admin-header">

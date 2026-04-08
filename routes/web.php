@@ -11,6 +11,9 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Hash;
 
+Route::post('/toggle-theme', [\App\Http\Controllers\ThemeController::class, 'toggle'])
+    ->middleware('auth')
+    ->name('theme.toggle');
 
 Route::middleware('auth')->get('/pending-notifications', function () {
     // Avisos que expiraram NAS ÚLTIMAS 2 HORAS

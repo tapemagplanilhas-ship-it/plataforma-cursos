@@ -19,6 +19,7 @@ class User extends Authenticatable
     'password_change_prompt_seen',
     'published_at',
     'expires_at',
+    'theme_preference',
 ];
 
 protected $hidden = [

@@ -2,10 +2,24 @@
 
 @section('content')
 <style>
-    .admin-header { margin-bottom: 30px; }
-    .admin-header h1 { font-size: 1.8rem; color: #fff; }
-    .admin-header h1 span { color: #e50000; }
-    .admin-header p { color: #555; font-size: 0.9rem; margin-top: 4px; }
+    .admin-header { 
+        margin-bottom: 30px; 
+    }
+    
+    .admin-header h1 { 
+        font-size: 1.8rem; 
+        color: var(--text-primary); 
+    }
+    
+    .admin-header h1 span { 
+        color: var(--accent); 
+    }
+    
+    .admin-header p { 
+        color: var(--text-muted); 
+        font-size: 0.9rem; 
+        margin-top: 4px; 
+    }
 
     /* Cards de stats */
     .stats-grid {
@@ -16,22 +30,28 @@
     }
 
     .stat-card {
-        background: #111;
-        border: 1px solid #222;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
         border-radius: 8px;
         padding: 20px;
         text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+        border-color: var(--accent);
+        box-shadow: 0 8px 20px rgba(229, 0, 0, 0.2);
     }
 
     .stat-card .number {
         font-size: 2.2rem;
         font-weight: 700;
-        color: #e50000;
+        color: var(--accent);
     }
 
     .stat-card .label {
         font-size: 0.8rem;
-        color: #555;
+        color: var(--text-muted);
         text-transform: uppercase;
         letter-spacing: 0.05em;
         margin-top: 4px;
@@ -44,23 +64,28 @@
         gap: 20px;
     }
 
-    @media(max-width: 768px) { .admin-grid { grid-template-columns: 1fr; } }
+    @media(max-width: 768px) { 
+        .admin-grid { 
+            grid-template-columns: 1fr; 
+        } 
+    }
 
     .admin-section {
-        background: #111;
-        border: 1px solid #222;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
         border-radius: 8px;
         padding: 20px;
+        transition: all 0.3s ease;
     }
 
     .admin-section h3 {
         font-size: 0.9rem;
-        color: #fff;
+        color: var(--text-primary);
         text-transform: uppercase;
         letter-spacing: 0.05em;
         margin-bottom: 16px;
         padding-bottom: 10px;
-        border-bottom: 1px solid #1a1a1a;
+        border-bottom: 1px solid var(--border-light);
     }
 
     .item-row {
@@ -68,38 +93,54 @@
         justify-content: space-between;
         align-items: center;
         padding: 8px 0;
-        border-bottom: 1px solid #1a1a1a;
+        border-bottom: 1px solid var(--border-light);
         font-size: 0.875rem;
     }
 
-    .item-row:last-child { border-bottom: none; }
-    .item-row .name { color: #ddd; }
-    .item-row .meta { color: #555; font-size: 0.78rem; }
+    .item-row:last-child { 
+        border-bottom: none; 
+    }
+    
+    .item-row .name { 
+        color: var(--text-secondary); 
+    }
+    
+    .item-row .meta { 
+        color: var(--text-muted); 
+        font-size: 0.78rem; 
+    }
 
     /* Role tags */
     .role-tag {
         font-size: 0.7rem;
         padding: 2px 8px;
         border-radius: 20px;
-        background: #1a1a1a;
-        color: #888;
-        border: 1px solid #2a2a2a;
+        background: var(--bg-tertiary);
+        color: var(--text-muted);
+        border: 1px solid var(--border);
     }
 
-    .role-tag.admin { background: #3a0000; color: #e50000; border-color: #e50000; }
+    .role-tag.admin { 
+        background: rgba(229, 0, 0, 0.1); 
+        color: var(--accent); 
+        border-color: var(--accent); 
+    }
 
     /* Distribuição por setor */
-    .role-bar { margin-bottom: 10px; }
+    .role-bar { 
+        margin-bottom: 10px; 
+    }
+    
     .role-bar-label {
         display: flex;
         justify-content: space-between;
         font-size: 0.78rem;
-        color: #888;
+        color: var(--text-muted);
         margin-bottom: 4px;
     }
 
     .role-bar-bg {
-        background: #1a1a1a;
+        background: var(--bg-tertiary);
         border-radius: 20px;
         height: 5px;
         overflow: hidden;
@@ -107,7 +148,7 @@
 
     .role-bar-fill {
         height: 100%;
-        background: #e50000;
+        background: var(--accent);
         border-radius: 20px;
     }
 
@@ -116,6 +157,7 @@
         display: flex;
         gap: 12px;
         margin-bottom: 24px;
+        flex-wrap: wrap;
     }
 
     .admin-nav a {
@@ -123,13 +165,19 @@
         border-radius: 6px;
         font-size: 0.85rem;
         text-decoration: none;
-        border: 1px solid #222;
-        color: #888;
-        transition: all 0.2s;
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        transition: all 0.3s ease;
+        background: var(--bg-tertiary);
     }
 
     .admin-nav a:hover,
-    .admin-nav a.active { background: #e50000; color: #fff; border-color: #e50000; }
+    .admin-nav a.active { 
+        background: var(--accent); 
+        color: #fff; 
+        border-color: var(--accent);
+        transform: translateY(-2px);
+    }
 </style>
 
 <div class="admin-header">

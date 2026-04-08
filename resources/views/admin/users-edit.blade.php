@@ -9,31 +9,36 @@
 
     .edit-header {
         margin-bottom: 30px;
-        border-bottom: 1px solid #222;
+        border-bottom: 1px solid var(--border);
         padding-bottom: 16px;
+        transition: border-color 0.3s ease;
     }
 
     .edit-header h1 {
         font-size: 1.6rem;
-        color: #fff;
+        color: var(--text-primary);
         margin: 0 0 4px 0;
+        transition: color 0.3s ease;
     }
 
     .edit-header h1 span {
-        color: #e50000;
+        color: var(--accent);
+        transition: color 0.3s ease;
     }
 
     .edit-header p {
-        color: #555;
+        color: var(--text-muted);
         font-size: 0.9rem;
         margin: 0;
+        transition: color 0.3s ease;
     }
 
     .edit-form {
-        background: #111;
-        border: 1px solid #222;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
         border-radius: 8px;
         padding: 28px;
+        transition: background-color 0.3s ease, border-color 0.3s ease;
     }
 
     .form-group {
@@ -42,61 +47,66 @@
 
     .form-group label {
         display: block;
-        color: #aaa;
+        color: var(--text-secondary);
         font-size: 0.8rem;
         text-transform: uppercase;
         letter-spacing: 0.05em;
         margin-bottom: 8px;
         font-weight: 600;
+        transition: color 0.3s ease;
     }
 
     .form-group input,
     .form-group select {
         width: 100%;
         padding: 11px 14px;
-        background: #1a1a1a;
-        border: 1px solid #2a2a2a;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-light);
         border-radius: 6px;
-        color: #f0f0f0;
+        color: var(--text-primary);
         font-size: 0.95rem;
-        transition: all 0.2s;
+        transition: all 0.3s ease;
         font-family: inherit;
     }
 
     .form-group input:focus,
     .form-group select:focus {
         outline: none;
-        border-color: #e50000;
+        border-color: var(--accent);
         box-shadow: 0 0 0 3px rgba(229, 0, 0, 0.1);
     }
 
     .form-group input::placeholder {
-        color: #444;
+        color: var(--text-muted);
+        transition: color 0.3s ease;
     }
 
     .password-section {
-        background: #1a1a1a;
-        border: 1px solid #2a2a2a;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-light);
         border-radius: 6px;
         padding: 16px;
         margin-top: 24px;
         margin-bottom: 20px;
+        transition: background-color 0.3s ease, border-color 0.3s ease;
     }
 
     .password-section h3 {
-        color: #ddd;
+        color: var(--text-secondary);
         font-size: 0.95rem;
         margin: 0 0 12px 0;
         padding: 0;
+        transition: color 0.3s ease;
     }
 
     .password-requirement {
         display: flex;
         align-items: center;
         font-size: 0.8rem;
-        color: #666;
+        color: var(--text-muted);
         margin-bottom: 8px;
         gap: 8px;
+        transition: color 0.3s ease;
     }
 
     .password-requirement.met {
@@ -112,11 +122,12 @@
         border-radius: 50%;
         font-size: 0.7rem;
         font-weight: 700;
+        transition: all 0.3s ease;
     }
 
     .password-requirement .icon.unmet {
-        background: #333;
-        color: #666;
+        background: var(--border);
+        color: var(--text-muted);
     }
 
     .password-requirement.met .icon {
@@ -139,28 +150,29 @@
         font-weight: 600;
         cursor: pointer;
         border: none;
-        transition: all 0.2s;
+        transition: all 0.3s ease;
         letter-spacing: 0.05em;
     }
 
     .btn-primary {
-        background: #e50000;
+        background: var(--accent);
         color: #fff;
     }
 
     .btn-primary:hover {
-        background: #cc0000;
+        background: var(--accent-hover);
+        transform: translateY(-2px);
     }
 
     .btn-secondary {
         background: transparent;
-        color: #888;
-        border: 1px solid #333;
+        color: var(--text-muted);
+        border: 1px solid var(--border);
     }
 
     .btn-secondary:hover {
-        color: #ddd;
-        border-color: #444;
+        color: var(--text-secondary);
+        border-color: var(--border-light);
     }
 
     .alert {
@@ -168,24 +180,26 @@
         border-radius: 6px;
         margin-bottom: 16px;
         font-size: 0.85rem;
+        transition: all 0.3s ease;
     }
 
     .alert-error {
-        background: #2d0a0a;
+        background: rgba(229, 0, 0, 0.1);
         color: #f87171;
-        border: 1px solid #ef4444;
+        border: 1px solid var(--accent);
     }
 
     .back-link {
         display: inline-block;
         margin-bottom: 20px;
-        color: #555;
+        color: var(--text-muted);
         font-size: 0.85rem;
         text-decoration: none;
+        transition: color 0.3s ease;
     }
 
     .back-link:hover {
-        color: #e50000;
+        color: var(--accent);
     }
 </style>
 
