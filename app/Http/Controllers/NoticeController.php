@@ -101,7 +101,7 @@ class NoticeController extends Controller
 
     public function update(Request $request, Notice $notice)
 {
-    if (!in_array(strtolower(auth()->user()->role), ['admin', 'diretoria', 'gerencia', 'rh', 'financeiro'])) {
+    if (!in_array(strtolower(auth()->user()->role), ['admin', 'diretoria', 'gerencia', 'rh', 'financeiro', 'supervisao_vendas'])) {
         abort(403, 'Sem permissão para editar avisos.');
     }
 
