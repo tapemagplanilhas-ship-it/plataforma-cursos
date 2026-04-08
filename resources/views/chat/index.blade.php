@@ -1008,7 +1008,9 @@ button {
                 <div id="file-preview"></div>
                 <div class="input-controls">
                     <div class="input-wrapper">
-                        <span class="input-icon" onclick="openEmojiPicker()" title="Emoji (Win+.)">😊</span>
+                        <span class="input-icon" id="emoji-trigger" onclick="openEmojiPicker()" title="Emoji (Win+.)" style="cursor:pointer">
+                        😊
+                        </span>
                         <input 
                             type="text" 
                             name="body" 
@@ -1045,6 +1047,7 @@ button {
         </div>
     </div>
 </div>
+
 
 <script>
 
@@ -1366,16 +1369,40 @@ setInterval(fetchMessages, 2000);
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#039;');
 }
-
-    function openEmojiPicker() {
-        if (navigator.userAgentData?.platform === 'Windows') {
-            alert('💡 Pressione WIN + . para abrir o emoji picker do Windows!');
-        } else if (navigator.userAgentData?.platform === 'macOS') {
-            alert('💡 Pressione CMD + ; para abrir o emoji picker do Mac!');
-        } else {
-            alert('💡 Use o atalho do seu sistema operacional para inserir emojis.');
+    // 1. Inicializa o seletor
+    const picker = new EmojiButton({
+        position: 'top-start', // Abre para cima para não cobrir o chat
+        rootElement: document.body,
+        i18n: {
+            search: 'Pesquisar emoji...',
+            categories: {
+                recents: 'Recentes',
+                smileys: 'Sorrisos e Emoções',
+                people: 'Pessoas e Corpo',
+                animals: 'Animais e Natureza',
+                food: 'Comida e Bebida',
+                activities: 'Atividades',
+                travel: 'Viagens e Lugares',
+                objects: 'Objetos',
+                symbols: 'Símbolos',
+                flags: 'Bandeiras'
+            }
         }
-        chatInput.focus();
+    });
+
+    const trigger = document.querySelector('#emoji-trigger');
+    const input = document.querySelector('#chat-input'); // CERTIFIQUE-SE QUE SEU INPUT TEM ESSE ID
+
+    // 2. O que acontece quando um emoji é escolhido
+    picker.on('emoji', selection => {
+        // Insere o emoji no input sem apagar o que já foi escrito
+        input.value += selection.emoji;
+        input.focus(); // Devolve o foco para o teclado
+    });
+
+    // 3. A sua função que o clique no ícone chama
+    function openEmojiPicker() {
+        picker.togglePicker(trigger);
     }
 
     function openEditModal(msgId, content) {

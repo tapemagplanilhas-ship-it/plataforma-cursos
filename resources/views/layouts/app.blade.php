@@ -113,11 +113,16 @@
         .badge-professor { background: #ff6600; color: #fff; }
         .badge-aluno     { background: #333; color: #f0f0f0; }
 
-        .notification-wrapper {
+        nav .nav-links {
+    display: flex;
+    align-items: center;
+}
+
+.notification-wrapper {
     position: relative;
     display: inline-flex;
     align-items: center;
-    margin-left: 18px;
+    margin-left: 10px;
 }
 
 .notification-bell {
@@ -129,13 +134,25 @@
     background: #111;
     color: #fff;
     cursor: pointer;
-    font-size: 1.1rem;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    line-height: 1;
     transition: all 0.2s ease;
 }
 
 .notification-bell:hover {
     border-color: #e50000;
     background: #1a1a1a;
+}
+
+.notification-bell-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
 }
 
 .notification-badge {
@@ -232,41 +249,6 @@
     text-align: center;
     color: #888;
 }
-nav .nav-links {
-    display: flex;
-    align-items: center;
-}
-
-.notification-wrapper {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    margin-left: 10px;
-    margin-right: 0;
-}
-
-.notification-bell {
-    position: relative;
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    border: 1px solid #333;
-    background: #111;
-    color: #fff;
-    cursor: pointer;
-    font-size: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    line-height: 1;
-    transition: all 0.2s ease;
-}
-
-.notification-bell:hover {
-    border-color: #e50000;
-    background: #1a1a1a;
-}
     </style>
 </head>
 <body>
@@ -291,11 +273,10 @@ nav .nav-links {
     @auth
    
     <div class="nav-links">
-        @auth
             <a href="{{ route('courses.index') }}">Cursos</a>
             <a href="{{ route('notices.index') }}">Avisos</a>
             <a href="{{ route('chat.index') }}">Chat</a>
-            <!-- <div class="notification-wrapper">
+            <div class="notification-wrapper">
         <button type="button" class="notification-bell" id="notificationBell">
             🔔
             <span class="notification-badge" id="notificationBadge">
@@ -316,7 +297,6 @@ nav .nav-links {
             </div>
         </div>
     </div>
-@endauth -->
 
             @if(auth()->user()->isAdmin())
                 <a href="{{ route('admin.dashboard') }}">⚙️ Admin</a>
@@ -778,6 +758,49 @@ document.addEventListener('DOMContentLoaded', function () {
     fetchNotifications();
     setInterval(fetchNotifications, 15000);
 });
+</script>
+@endauth
+
+@auth
+<script>
+// Pedir permissão para notificações (aparece UMA VEZ)
+if ('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission().then(permission => {
+        if (permission === 'granted') {
+            console.log('✓ Notificações ativadas!');
+        }
+    });
+}
+
+// Registrar Service Worker
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').catch(error => {
+        console.log('SW não registrado:', error);
+    });
+}
+
+// Verificar notificações a cada 30 segundos
+setInterval(async () => {
+    try {
+        const response = await fetch('/api/pending-notifications');
+        const data = await response.json();
+
+        data.notifications.forEach(notification => {
+            if (Notification.permission === 'granted') {
+                new Notification(notification.title, {
+                    body: notification.body,
+                    icon: '/images/tapemag-logo.png',
+                    badge: '/images/badge.png',
+                    tag: notification.id, // Evita notificações duplicadas
+                    requireInteraction: false
+                });
+            }
+        });
+    } catch (error) {
+        console.log('Erro ao buscar notificações:', error);
+    }
+}, 30000); // 30 segundos
+
 </script>
 @endauth
 </body>

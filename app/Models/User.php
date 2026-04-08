@@ -17,12 +17,15 @@ class User extends Authenticatable
     'password',
     'role',
     'password_change_prompt_seen',
+    'published_at',
+    'expires_at',
 ];
 
 protected $hidden = [
     'password',
     'remember_token',
 ];
+
 
 protected $casts = [
     'email_verified_at' => 'datetime',
@@ -68,5 +71,18 @@ public function completedCourses()
 public function systemNotifications()
 {
     return $this->hasMany(\App\Models\Notification::class)->latest();
+}
+// Escopo local para filtrar apenas avisos ativos
+public function scopeActive($query)
+{
+    return $query
+        ->where(function ($q) {
+            $q->whereNull('published_at')
+              ->orWhere('published_at', '&lt;=', now());
+        })
+        ->where(function ($q) {
+            $q->whereNull('expires_at')
+              ->orWhere('expires_at', '>=', now());
+        });
 }
 }

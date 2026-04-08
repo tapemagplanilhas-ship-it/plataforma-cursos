@@ -111,6 +111,28 @@
             @error('color') <span style="color: #ff4444;">{{ $message }}</span> @enderror
         </div>
 
+        <div style="margin-bottom: 16px;">
+    <label for="published_at" style="display:block; margin-bottom: 6px;">📅 Data/Hora de Publicação (opcional)</label>
+    <input
+        type="datetime-local"
+        name="published_at"
+        id="published_at"
+        style="width:100%; padding:10px 12px; border-radius:8px; border:1px solid #333; background:#1a1a1a; color:#fff;"
+    >
+    <small style="color:#888;">Deixe em branco para publicar imediatamente</small>
+</div>
+
+<div style="margin-bottom: 16px;">
+    <label for="expires_at" style="display:block; margin-bottom: 6px;">⏱️ Data/Hora de Expiração (opcional)</label>
+    <input
+        type="datetime-local"
+        name="expires_at"
+        id="expires_at"
+        style="width:100%; padding:10px 12px; border-radius:8px; border:1px solid #333; background:#1a1a1a; color:#fff;"
+    >
+    <small style="color:#888;">Deixe em branco para nunca expirar</small>
+</div>
+
         <div class="form-group">
             <label for="media_path" class="form-label">Arquivos, Imagens ou Vídeos (opcional)</label>
             <input type="file" id="media_path" name="media_path" class="form-input" accept="image/*,video/*, application/pdf, .doc, .docx, .xls, .xlsx, .ppt, .pptx, .txt, .zip, .rar">

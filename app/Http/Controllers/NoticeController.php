@@ -15,6 +15,11 @@ class NoticeController extends Controller
             ->byPriority()
             ->paginate(12);
 
+        $notices = Notice::active()
+        ->orderByDesc('published_at')
+        ->orderByDesc('created_at')
+        ->paginate(12);
+
         return view('notices.index', compact('notices'));
     }
 
@@ -27,52 +32,55 @@ class NoticeController extends Controller
     }
 
     
-      public function store(Request $request)
-    {
-         if (!in_array(strtolower(auth()->user()->role), ['admin', 'diretoria', 'gerencia', 'rh', 'financeiro'])) {
+     public function store(Request $request)
+{
+    if (!in_array(strtolower(auth()->user()->role), ['admin', 'diretoria', 'gerencia', 'rh', 'financeiro'])) {
         abort(403, 'Sem permissão para publicar avisos.');
     }
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'priority' => 'required|in:normal,importante,urgente',
-            'color' => 'required|string',
-            'media_path' => 'nullable|file|mimes:jpg,jpeg,png,gif,mp4,webm,avi,mov,pdf,xlsx,xls,docx,doc|max:102400'
-        ]);
 
-        $mediaPath = null;
-        $mediaType = null;
+    $validated = $request->validate([
+        'title' => 'required|string|max:255',
+        'description' => 'required|string',
+        'priority' => 'required|in:normal,importante,urgente',
+        'color' => 'required|string',
+        'media_path' => 'nullable|file|mimes:jpg,jpeg,png,gif,mp4,webm,avi,mov,pdf,xlsx,xls,docx,doc|max:102400',
+        'published_at' => 'nullable|date_format:Y-m-d\TH:i',
+        'expires_at' => 'nullable|date_format:Y-m-d\TH:i|after:published_at',
+    ]);
 
-        if ($request->hasFile('media_path')) {
-            $file = $request->file('media_path');
+    $mediaPath = null;
+    $mediaType = null;
 
-            // CORREÇÃO 1: Salva na pasta PUBLICA para a internet conseguir ver
-            $mediaPath = $file->store('notices', 'public');
+    if ($request->hasFile('media_path')) {
+        $file = $request->file('media_path');
+        $mediaPath = $file->store('notices', 'public');
 
-            // detecta tipo (imagem, vídeo ou documento)
-            if (str_contains($file->getMimeType(), 'image')) {
-                $mediaType = 'image';
-            } elseif (str_contains($file->getMimeType(), 'video')) {
-                $mediaType = 'video';
-            } else {
-                $mediaType = 'document';
-            }
+        if (str_contains($file->getMimeType(), 'image')) {
+            $mediaType = 'image';
+        } elseif (str_contains($file->getMimeType(), 'video')) {
+            $mediaType = 'video';
+        } else {
+            $mediaType = 'document';
         }
-
-        Notice::create([
-            'title' => $request->title,
-            'description' => $request->description,
-            'priority' => $request->priority,
-            'color' => $request->color,
-            'media_path' => $mediaPath,
-            'media_type' => $mediaType,
-            'active' => true,
-            'user_id'    => Auth::id(), 
-            'created_by' => Auth::id(),
-        ]);
-
-        return redirect()->route('notices.index')->with('success', 'Aviso publicado com sucesso!');
     }
+
+    // UMA SÓ CRIAÇÃO
+    Notice::create([
+        'title' => $validated['title'],
+        'description' => $validated['description'],
+        'priority' => $validated['priority'],
+        'color' => $validated['color'],
+        'media_path' => $mediaPath,
+        'media_type' => $mediaType,
+        'active' => true,
+        'user_id' => Auth::id(),
+        'created_by' => Auth::id(),
+        'published_at' => $validated['published_at'] ?? null,
+        'expires_at' => $validated['expires_at'] ?? null,
+    ]);
+
+    return redirect()->route('notices.index')->with('success', '✅ Aviso publicado com sucesso!');
+}
 
     public function download(Notice $notice)
 {
@@ -92,32 +100,57 @@ class NoticeController extends Controller
 }
 
     public function update(Request $request, Notice $notice)
-    {
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'priority' => 'required|in:urgente,importante,normal',
-            'color' => 'required|string',
-            'media_path' => 'nullable|file|mimes:jpg,jpeg,png,gif,mp4,webm',
-            'active' => 'boolean',
-        ]);
+{
+    if (!in_array(strtolower(auth()->user()->role), ['admin', 'diretoria', 'gerencia', 'rh', 'financeiro'])) {
+        abort(403, 'Sem permissão para editar avisos.');
+    }
 
-        if ($request->hasFile('media_path')) {
-            $file = $request->file('media_path');
-            $notice->media_path = $file->store('notices', 'public');
-            $notice->media_type = $file->getMimeType();
+    $validated = $request->validate([
+        'title' => 'required|string|max:255',
+        'description' => 'required|string',
+        'priority' => 'required|in:normal,importante,urgente',
+        'color' => 'required|string',
+        'media_path' => 'nullable|file|mimes:jpg,jpeg,png,gif,mp4,webm,avi,mov,pdf,xlsx,xls,docx,doc|max:102400',
+        'active' => 'boolean',
+        'published_at' => 'nullable|date_format:Y-m-d\TH:i',
+        'expires_at' => 'nullable|date_format:Y-m-d\TH:i|after:published_at',
+    ]);
+
+    $mediaPath = $notice->media_path;
+    $mediaType = $notice->media_type;
+
+    if ($request->hasFile('media_path')) {
+        if ($notice->media_path && Storage::disk('public')->exists($notice->media_path)) {
+            Storage::disk('public')->delete($notice->media_path);
         }
 
-        $notice->update([
-            'title' => $request->title,
-            'description' => $request->description,
-            'priority' => $request->priority,
-            'color' => $request->color,
-            'active' => $request->boolean('active'),
-        ]);
+        $file = $request->file('media_path');
+        $mediaPath = $file->store('notices', 'public');
 
-        return redirect()->route('notices.index')->with('success', '✅ Aviso atualizado!');
+        if (str_contains($file->getMimeType(), 'image')) {
+            $mediaType = 'image';
+        } elseif (str_contains($file->getMimeType(), 'video')) {
+            $mediaType = 'video';
+        } else {
+            $mediaType = 'document';
+        }
     }
+
+    // UMA SÓ ATUALIZAÇÃO
+    $notice->update([
+        'title' => $validated['title'],
+        'description' => $validated['description'],
+        'priority' => $validated['priority'],
+        'color' => $validated['color'],
+        'media_path' => $mediaPath,
+        'media_type' => $mediaType,
+        'active' => $request->boolean('active'),
+        'published_at' => $validated['published_at'] ?? null,
+        'expires_at' => $validated['expires_at'] ?? null,
+    ]);
+
+    return redirect()->route('notices.index')->with('success', '✅ Aviso atualizado com sucesso!');
+}
 
     public function destroy(Notice $notice)
     {

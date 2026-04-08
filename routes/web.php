@@ -11,6 +11,31 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Hash;
 
+
+Route::middleware('auth')->get('/pending-notifications', function () {
+    // Avisos que expiraram NAS ÚLTIMAS 2 HORAS
+    $recentlyExpired = \App\Models\Notice::where('expires_at', '>', now()->subHours(2))
+        ->where('expires_at', '<=', now())
+        ->where('notified', false) // Evita duplicatas
+        ->get();
+
+    $notifications = $recentlyExpired->map(function ($notice) {
+        return [
+            'id' => $notice->id,
+            'title' => '⏰ Aviso Expirado',
+            'body' => "'{$notice->title}' saiu do ar",
+        ];
+    });
+
+    // Marcar como notificadas
+    $recentlyExpired->each->update(['notified' => true]);
+
+    return response()->json([
+        'notifications' => $notifications
+    ]);
+});
+
+
 // Auth
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);

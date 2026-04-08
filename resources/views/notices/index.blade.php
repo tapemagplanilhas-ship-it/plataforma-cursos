@@ -181,6 +181,7 @@
         <div class="mural-grid">
             @foreach($notices as $notice)
                <a href="{{ route('notices.show', $notice->id) }}" style="text-decoration: none; color: inherit;">
+                <div class="notice-card {{ $notice->priority }}" data-notice-id="{{ $notice->id }}">
                 <div class="notice-card {{ $notice->priority }}">
                     @if($notice->media_path)
                         @if(str_contains($notice->media_type, 'image'))
@@ -200,6 +201,34 @@
 
                         <p class="notice-body">{{ Str::limit($notice->body, 150) }}</p>
 
+                        <!-- Informações de agendamento -->
+        @if($notice->published_at || $notice->expires_at)
+            <div style="
+                margin: 12px 0;
+                padding: 10px;
+                background: rgba(229, 0, 0, 0.08);
+                border-radius: 8px;
+                border-left: 3px solid #e50000;
+                font-size: 0.85rem;
+                color: #aaa;
+                line-height: 1.5;
+            ">
+                @if($notice->published_at)
+                    <div style="margin-bottom: 4px;">
+                        <span style="color:#ccc;">📅 Publicado:</span>
+                        {{ $notice->published_at->format('d/m H:i') }}
+                    </div>
+                @endif
+
+                @if($notice->expires_at)
+                    <div style="margin-bottom: 4px;">
+                        <span style="color:#ccc;">⏱️ Expira:</span>
+                        {{ $notice->expires_at->format('d/m H:i') }}
+                    </div>
+                @endif
+            </div>
+        @endif
+
                         <div class="notice-footer">
                             <span class="notice-creator-name">{{ $notice->creator->name ?? 'Sistema' }}</span>
                             <span>{{ $notice->created_at->format('d/m/Y H:i') }}</span>
@@ -208,6 +237,7 @@
                 </div>
             @endforeach
         </div>
+</div>
     </a>
 
         <div style="display: flex; justify-content: center; margin-top: 40px;">
@@ -219,4 +249,60 @@
         </div>
     @endif
 </div>
+
+@auth
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Array para armazenar os timestamps de expiração dos avisos
+    const avisosComExpiracao = [
+        @foreach($notices as $notice)
+            @if($notice->expires_at)
+                {
+                    id: {{ $notice->id }},
+                    expiresAt: new Date('{{ $notice->expires_at->toIso8601String() }}').getTime(),
+                    titulo: '{{ $notice->title }}'
+                },
+            @endif
+        @endforeach
+    ];
+
+    function verificarExpiracoes() {
+        const agora = Date.now();
+        let algumAvisoExpirou = false;
+
+        avisosComExpiracao.forEach(aviso => {
+            // Se o aviso expirou
+            if (agora >= aviso.expiresAt && !aviso.notificado) {
+                console.log(`⏰ Aviso expirou: "${aviso.titulo}"`);
+                algumAvisoExpirou = true;
+                aviso.notificado = true;
+
+                // Animar a saída do card
+                const card = document.querySelector(`[data-notice-id="${aviso.id}"]`);
+                if (card) {
+                    card.style.transition = 'opacity 0.5s ease-out';
+                    card.style.opacity = '0';
+                    setTimeout(() => {
+                        card.style.display = 'none';
+                    }, 500);
+                }
+            }
+        });
+
+        // Se algum aviso expirou, recarregar a página após 2 segundos
+        if (algumAvisoExpirou) {
+            setTimeout(() => {
+                location.reload();
+            }, 2000);
+        }
+    }
+
+    // Verificar expiração a cada 10 segundos
+    setInterval(verificarExpiracoes, 10000);
+
+    // Verificar na primeira carga também
+    verificarExpiracoes();
+});
+</script>
+@endauth
 @endsection
