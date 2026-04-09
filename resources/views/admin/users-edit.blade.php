@@ -338,4 +338,5 @@ function updateRequirement(id, met) {
 // Validar ao digitar
 document.getElementById('password').addEventListener('input', validatePassword);
 </script>
+
 @endsection

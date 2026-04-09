@@ -237,4 +237,5 @@
         </tbody>
     </table>
 </div>
+
 @endsection

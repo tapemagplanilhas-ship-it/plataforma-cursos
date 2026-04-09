@@ -94,4 +94,5 @@
         Não tem conta? <a href="{{ route('register') }}">Cadastre-se</a>
     </div>
 </div>
+
 @endsection

@@ -281,4 +281,5 @@ document.getElementById('courseForm').addEventListener('submit', function () {
     }, 300);
 });
 </script>
+
 @endsection

@@ -13,6 +13,7 @@ class Message extends Model
         'media_path',
         'media_type',
         'read_at',
+        'notified', 
     ];
 
     protected $casts = [

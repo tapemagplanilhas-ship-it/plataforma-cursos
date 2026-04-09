@@ -10,6 +10,67 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use App\Models\Notice;
+use App\Models\Message;
+
+
+Route::middleware('auth')->get('/check-notifications', function () {
+    $user = auth()->user();
+    $notifications = collect(); // Coleção para agrupar tudo
+
+    // ==========================================
+    // 1. VERIFICAÇÃO DE AVISOS EXPIRADOS
+    // ==========================================
+    $expiredNotices = Notice::whereNotNull('expires_at')
+        ->where('expires_at', '<=', now())
+        ->where('notified', false)
+        ->get();
+
+    foreach ($expiredNotices as $notice) {
+        $notifications->push([
+            'id' => 'notice_' . $notice->id,
+            'title' => '⏰ Aviso Expirado!',
+            'body' => "O aviso '{$notice->title}' acabou de sair do ar.",
+            'url' => route('notices.show', $notice->id)
+        ]);
+    }
+    
+    if ($expiredNotices->isNotEmpty()) {
+        Notice::whereIn('id', $expiredNotices->pluck('id'))->update(['notified' => true]);
+    }
+
+    // ==========================================
+    // 2. VERIFICAÇÃO DE NOVAS MENSAGENS NO CHAT
+    // ==========================================
+    $newMessages = Message::where('recipient_id', $user->id)
+        ->where('is_read', false)
+        ->where('notified', false)
+        ->with('sender') // Traz os dados de quem enviou
+        ->get();
+
+    foreach ($newMessages as $msg) {
+        $senderName = $msg->sender ? $msg->sender->name : 'Alguém da equipe';
+        
+        // Se for arquivo/mídia, avisa. Se for texto, mostra um preview de 40 caracteres.
+        $bodyPreview = $msg->body ? Str::limit($msg->body, 40) : 'Enviou um arquivo 📎';
+        
+        $notifications->push([
+            'id' => 'msg_' . $msg->id,
+            'title' => "💬 Nova mensagem de {$senderName}",
+            'body' => $bodyPreview,
+            // 💡 Redireciona direto para a tela de chat
+            'url' => url('/chat') 
+        ]);
+    }
+
+    if ($newMessages->isNotEmpty()) {
+        Message::whereIn('id', $newMessages->pluck('id'))->update(['notified' => true]);
+    }
+
+    return response()->json(['notifications' => $notifications]);
+})->name('notifications.check');
+
 
 Route::post('/toggle-theme', [\App\Http\Controllers\ThemeController::class, 'toggle'])
     ->middleware('auth')

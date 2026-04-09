@@ -1,26 +1,67 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-     <link rel="stylesheet" href="{{ asset('css/theme.css') }}">
-    <title>{{ config('app.name', 'Laravel') }}</title>
+    <link rel="stylesheet" href="{{ asset('css/theme.css') }}">
+    <title>{{ config('app.name', 'Tapemag') }}</title>
     <style>
+        /* === VARIÁVEIS DE TEMA GLOBAIS === */
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --bg-tertiary: #1a1a1a;
+            --text-primary: #f0f0f0;
+            --text-secondary: #cccccc;
+            --text-muted: #888888;
+            --accent: #e50000;
+            --accent-hover: #cc0000;
+            --border: #333333;
+            --border-light: #2a2a2a;
+            --dropdown-bg: linear-gradient(135deg, #151515 0%, #1f1f1f 100%);
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f4f4f5;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #e9ecef;
+            --text-primary: #1a1a1a;
+            --text-secondary: #4a4a4a;
+            --text-muted: #6c757d;
+            --accent: #e50000;
+            --accent-hover: #cc0000;
+            --border: #dee2e6;
+            --border-light: #e9ecef;
+            --dropdown-bg: #ffffff;
+        }
+
+        /* === CONTROLE DINÂMICO DA LOGO === */
+/* No tema escuro (padrão), a logo fica normal (branca/clara) */
+        nav .logo img {
+            transition: filter 0.3s ease;
+        }
+
+/* No tema claro, transformamos a logo em PRETA */
+        [data-theme="light"] nav .logo img {
+            filter: brightness(0);
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
+        /* === APLICAÇÃO DAS VARIÁVEIS === */
         body {
-            background-color: #0a0a0a;
-            color: #f0f0f0;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
             font-family: 'Segoe UI', sans-serif;
             min-height: 100vh;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         /* NAVBAR */
         nav {
-            background: #111;
-            border-bottom: 2px solid #e50000;
+            background: var(--bg-secondary);
+            border-bottom: 2px solid var(--accent);
             padding: 14px 30px;
             display: flex;
             align-items: center;
@@ -28,29 +69,30 @@
             position: sticky;
             top: 0;
             z-index: 100;
+            transition: background-color 0.3s ease;
         }
 
         nav .logo {
             font-size: 1.4rem;
             font-weight: 700;
-            color: #e50000;
+            color: var(--accent);
             text-decoration: none;
             letter-spacing: 2px;
             text-transform: uppercase;
         }
 
         nav .nav-links a {
-            color: #f0f0f0;
+            color: var(--text-primary);
             text-decoration: none;
             margin-left: 20px;
             font-size: 0.9rem;
             transition: color 0.2s;
         }
 
-        nav .nav-links a:hover { color: #e50000; }
+        nav .nav-links a:hover { color: var(--accent); }
 
         nav .nav-links span {
-            color: #888;
+            color: var(--text-muted);
             font-size: 0.8rem;
             margin-left: 20px;
         }
@@ -59,8 +101,8 @@
 
         nav .nav-links button {
             background: none;
-            border: 1px solid #e50000;
-            color: #e50000;
+            border: 1px solid var(--accent);
+            color: var(--accent);
             padding: 5px 14px;
             border-radius: 4px;
             cursor: pointer;
@@ -70,8 +112,8 @@
         }
 
         nav .nav-links button:hover {
-            background: #e50000;
-            color: #fff;
+            background: var(--accent);
+            color: #fff; /* Botão preenchido sempre tem texto branco */
         }
 
         /* CONTAINER */
@@ -83,17 +125,17 @@
 
         /* ALERTS */
         .alert-success {
-            background: #1a1a1a;
-            border-left: 4px solid #e50000;
-            color: #f0f0f0;
+            background: var(--bg-tertiary);
+            border-left: 4px solid var(--accent);
+            color: var(--text-primary);
             padding: 12px 18px;
             border-radius: 4px;
             margin-bottom: 20px;
         }
 
         .alert-error {
-            background: #1a0000;
-            border-left: 4px solid #e50000;
+            background: rgba(229, 0, 0, 0.1);
+            border-left: 4px solid var(--accent);
             color: #ff6666;
             padding: 12px 18px;
             border-radius: 4px;
@@ -109,210 +151,203 @@
             text-transform: uppercase;
         }
 
-        .badge-admin     { background: #e50000; color: #fff; }
+        .badge-admin     { background: var(--accent); color: #fff; }
         .badge-professor { background: #ff6600; color: #fff; }
-        .badge-aluno     { background: #333; color: #f0f0f0; }
+        .badge-aluno     { background: var(--bg-tertiary); color: var(--text-primary); }
 
         nav .nav-links {
-    display: flex;
-    align-items: center;
-}
+            display: flex;
+            align-items: center;
+        }
 
-.notification-wrapper {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    margin-left: 10px;
-}
+        /* NOTIFICAÇÕES */
+        .notification-wrapper {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            margin-left: 10px;
+        }
 
-.notification-bell {
-    position: relative;
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    border: 1px solid #333;
-    background: #111;
-    color: #fff;
-    cursor: pointer;
-    font-size: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    line-height: 1;
-    transition: all 0.2s ease;
-}
+        .notification-bell {
+            position: relative;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            line-height: 1;
+            transition: all 0.2s ease;
+        }
 
-.notification-bell:hover {
-    border-color: #e50000;
-    background: #1a1a1a;
-}
+        .notification-bell:hover {
+            border-color: var(--accent);
+            background: var(--bg-tertiary);
+        }
 
-.notification-bell-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    line-height: 1;
-}
+        .notification-badge {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            min-width: 20px;
+            height: 20px;
+            padding: 0 6px;
+            border-radius: 999px;
+            background: var(--accent);
+            color: #fff;
+            font-size: 0.72rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-.notification-badge {
-    position: absolute;
-    top: -6px;
-    right: -6px;
-    min-width: 20px;
-    height: 20px;
-    padding: 0 6px;
-    border-radius: 999px;
-    background: #e50000;
-    color: #fff;
-    font-size: 0.72rem;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
+        .notification-dropdown {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            width: 320px;
+            background: var(--dropdown-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: 0 18px 40px rgba(0,0,0,0.2);
+            display: none;
+            overflow: hidden;
+            z-index: 9999;
+        }
 
-.notification-dropdown {
-    position: absolute;
-    top: 50px;
-    right: 0;
-    width: 320px;
-    background: linear-gradient(135deg, #151515 0%, #1f1f1f 100%);
-    border: 1px solid rgba(229, 0, 0, 0.15);
-    border-radius: 12px;
-    box-shadow: 0 18px 40px rgba(0,0,0,0.45);
-    display: none;
-    overflow: hidden;
-    z-index: 9999;
-}
+        .notification-dropdown.show {
+            display: block;
+        }
 
-.notification-dropdown.show {
-    display: block;
-}
+        .notification-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border-light);
+            color: var(--text-primary);
+            font-weight: 700;
+        }
 
-.notification-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 14px 16px;
-    border-bottom: 1px solid #2a2a2a;
-    color: #fff;
-    font-weight: 700;
-}
+        .notification-read-all {
+            background: none;
+            border: none;
+            color: var(--accent);
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
 
-.notification-read-all {
-    background: none;
-    border: none;
-    color: #e50000;
-    cursor: pointer;
-    font-size: 0.8rem;
-    font-weight: 700;
-}
+        .notification-list {
+            max-height: 350px;
+            overflow-y: auto;
+        }
 
-.notification-list {
-    max-height: 350px;
-    overflow-y: auto;
-}
+        .notification-item {
+            display: block;
+            padding: 14px 16px;
+            text-decoration: none;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border-light);
+            transition: background 0.2s ease;
+        }
 
-.notification-item {
-    display: block;
-    padding: 14px 16px;
-    text-decoration: none;
-    color: #fff;
-    border-bottom: 1px solid #242424;
-    transition: background 0.2s ease;
-}
+        .notification-item:hover {
+            background: rgba(229, 0, 0, 0.06);
+        }
 
-.notification-item:hover {
-    background: rgba(229, 0, 0, 0.06);
-}
+        .notification-item.unread {
+            background: rgba(229, 0, 0, 0.08);
+            border-left: 3px solid var(--accent);
+        }
 
-.notification-item.unread {
-    background: rgba(229, 0, 0, 0.08);
-    border-left: 3px solid #e50000;
-}
+        .notification-item-title {
+            font-size: 0.92rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
 
-.notification-item-title {
-    font-size: 0.92rem;
-    font-weight: 700;
-    color: #fff;
-    margin-bottom: 4px;
-}
+        .notification-item-time {
+            font-size: 0.76rem;
+            color: var(--text-muted);
+        }
 
-.notification-item-time {
-    font-size: 0.76rem;
-    color: #888;
-}
-
-.notification-empty {
-    padding: 18px;
-    text-align: center;
-    color: #888;
-}
+        .notification-empty {
+            padding: 18px;
+            text-align: center;
+            color: var(--text-muted);
+        }
     </style>
 </head>
 <body>
-      @php
+    @php
         $user = auth()->user();
-
         $excludedEmails = ['suporte@tapemag.com.br', 'victor.araujo@tapemag.com.br'];
-
         $shouldShowPasswordPrompt =
             $user &&
             !$user->password_change_prompt_seen &&
             !in_array($user->email, $excludedEmails);
     @endphp
 
-    
-
 <nav>
-    
     <a href="{{ route('courses.index') }}" class="logo">
         <img src="{{ asset('images/tapemag-logo.png') }}" alt="Tapemag" style="height: 42px; object-fit: contain;">
     </a>
     @auth
-   
     <div class="nav-links">
-            <a href="{{ route('courses.index') }}">Cursos</a>
-            <a href="{{ route('notices.index') }}">Avisos</a>
-            <a href="{{ route('chat.index') }}">Chat</a>
-            <div class="notification-wrapper">
-        <button type="button" class="notification-bell" id="notificationBell">
-            🔔
-            <span class="notification-badge" id="notificationBadge">
-                {{ auth()->user()->systemNotifications()->where('is_read', false)->count() }}
-            </span>
-        </button>
+        <a href="{{ route('courses.index') }}">Cursos</a>
+        <a href="{{ route('notices.index') }}">Avisos</a>
+        <a href="{{ route('chat.index') }}">Chat</a>
+        
+        <div class="notification-wrapper">
+            <button type="button" class="notification-bell" id="notificationBell">
+                🔔
+                <span class="notification-badge" id="notificationBadge">
+                    {{ auth()->user()->systemNotifications()->where('is_read', false)->count() }}
+                </span>
+            </button>
 
-        <div class="notification-dropdown" id="notificationDropdown">
-            <div class="notification-header">
-                <span>Notificações</span>
-                <button type="button" class="notification-read-all" id="markAllNotificationsRead">
-                    Marcar todas
-                </button>
-            </div>
+            <div class="notification-dropdown" id="notificationDropdown">
+                <div class="notification-header">
+                    <span>Notificações</span>
+                    <button type="button" class="notification-read-all" id="markAllNotificationsRead">
+                        Marcar todas
+                    </button>
+                </div>
 
-            <div class="notification-list" id="notificationList">
-                <div class="notification-empty">Carregando...</div>
+                <div class="notification-list" id="notificationList">
+                    <div class="notification-empty">Carregando...</div>
+                </div>
             </div>
         </div>
-    </div>
 
-            @if(auth()->user()->isAdmin())
-                <a href="{{ route('admin.dashboard') }}">⚙️ Admin</a>
-            @endif
-            <span>{{ auth()->user()->name }}</span>
-            <span class="badge badge-{{ auth()->user()->role }}">{{ auth()->user()->role }}</span>
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <button type="submit">Sair</button>
-            </form>
-        @endauth
+        @if(auth()->user()->isAdmin())
+            <a href="{{ route('admin.dashboard') }}">⚙️ Admin</a>
+        @endif
+        
+        <span>{{ auth()->user()->name }}</span>
+        <span class="badge badge-{{ auth()->user()->role }}">{{ auth()->user()->role }}</span>
+        
+        <!-- Botão de Tema -->
+        <button id="theme-toggle" title="Alternar tema" style="margin-left: 15px; border: none; background: transparent; font-size: 1.2rem; cursor: pointer;">
+            🌓
+        </button>
+
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+            <button type="submit">Sair</button>
+        </form>
     </div>
-    
+    @endauth
 </nav>
-
-
 
 <div class="container">
     @if(session('success'))
@@ -333,10 +368,9 @@
 @if(session('show_welcome_modal'))
 <style>
     .welcome-modal { display: block; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
-    .modal-content { background: #fff; border-radius: 12px; margin: 10% auto; padding: 24px; width: 90%; max-width: 500px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
-    .modal-title { font-size: 1.5rem; margin-bottom: 16px; color: #e50000; }
-    .notice-item { background: #f5f5f5; padding: 12px; margin: 8px 0; border-radius: 8px; border-left: 4px solid #e50000; }
-    .close-btn { background: #e50000; color: #fff; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; width: 100%; margin-top: 16px; }
+    .modal-content { background: var(--bg-secondary); color: var(--text-primary); border-radius: 12px; margin: 10% auto; padding: 24px; width: 90%; max-width: 500px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+    .modal-title { font-size: 1.5rem; margin-bottom: 16px; color: var(--accent); }
+    .close-btn { background: var(--accent); color: #fff; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; width: 100%; margin-top: 16px; }
 </style>
 
 <div id="welcomeModal" class="welcome-modal">
@@ -365,106 +399,24 @@ function closeWelcomeModal() { document.getElementById('welcomeModal').style.dis
 </div>
 
 <script>
-    // Auto-hide após 5s
-    setTimeout(() => {
-        document.getElementById('badgeAlert').style.display = 'none';
-    }, 5000);
+    setTimeout(() => { document.getElementById('badgeAlert').style.display = 'none'; }, 5000);
 </script>
 @endif
 
-@if($shouldShowPasswordPrompt)
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const modal = document.getElementById('password-change-modal-overlay');
-    const btnYes = document.getElementById('password-change-yes');
-    const btnNo = document.getElementById('password-change-no');
-
-    if (!modal || !btnYes || !btnNo) return;
-
-    function markPromptAsSeen() {
-        return fetch('{{ route("password.prompt.seen") }}', {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({})
-        });
-    }
-
-    btnYes.addEventListener('click', function () {
-        markPromptAsSeen().then(() => {
-            window.location.href = '{{ route("profile.password.edit") }}';
-        }).catch(() => {
-            window.location.href = '{{ route("profile.password.edit") }}';
-        });
-    });
-
-    btnNo.addEventListener('click', function () {
-        markPromptAsSeen().finally(() => {
-            modal.remove();
-        });
-    });
-});
-</script>
-@endif
-
-<!-- ALERT DE BEM-VINDO A CADA LOGIN -->
 @if(session('welcome'))
 <style>
     .alert-welcome {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
-        color: #fff;
-        padding: 40px;
-        border-radius: 12px;
-        box-shadow: 0 20px 60px rgba(229, 0, 0, 0.5);
-        z-index: 10000;
-        width: 90%;
-        max-width: 500px;
-        text-align: center;
-        animation: slideIn 0.5s ease;
+        position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        background: var(--dropdown-bg); color: var(--text-primary);
+        padding: 40px; border-radius: 12px; box-shadow: 0 20px 60px rgba(229, 0, 0, 0.5);
+        z-index: 10000; width: 90%; max-width: 500px; text-align: center; animation: slideIn 0.5s ease;
     }
-    @keyframes slideIn {
-        from { transform: translate(-50%, -60%); opacity: 0; }
-        to { transform: translate(-50%, -50%); opacity: 1; }
-    }
-    .alert-title {
-        font-size: 2rem;
-        color: #e50000;
-        margin-bottom: 15px;
-    }
-    .alert-text {
-        font-size: 1.1rem;
-        color: #ccc;
-        margin-bottom: 20px;
-    }
-    .alert-button {
-        background: #e50000;
-        color: #fff;
-        border: none;
-        padding: 12px 30px;
-        border-radius: 6px;
-        font-size: 1rem;
-        cursor: pointer;
-        transition: background 0.3s;
-    }
-    .alert-button:hover {
-        background: #cc0000;
-    }
-    .alert-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.6);
-        z-index: 9999;
-    }
+    @keyframes slideIn { from { transform: translate(-50%, -60%); opacity: 0; } to { transform: translate(-50%, -50%); opacity: 1; } }
+    .alert-title { font-size: 2rem; color: var(--accent); margin-bottom: 15px; }
+    .alert-text { font-size: 1.1rem; color: var(--text-secondary); margin-bottom: 20px; }
+    .alert-button { background: var(--accent); color: #fff; border: none; padding: 12px 30px; border-radius: 6px; font-size: 1rem; cursor: pointer; transition: background 0.3s; }
+    .alert-button:hover { background: var(--accent-hover); }
+    .alert-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 9999; }
 </style>
 
 <div class="alert-overlay" onclick="closeAlert()"></div>
@@ -481,327 +433,231 @@ function closeAlert() {
     if (overlay) overlay.remove();
     if (alert) alert.remove();
 }
-
-// Auto-fecha após 8s
-setTimeout(() => {
-    const alert = document.querySelector('.alert-welcome');
-    if (alert) {
-        closeAlert();
-    }
-}, 8000);
+setTimeout(() => { closeAlert(); }, 8000);
 </script>
 @endif
 
 @if($shouldShowPasswordPrompt)
-    <div id="password-change-modal-overlay" style="
-        position: fixed;
-        inset: 0;
-        background: rgba(0,0,0,0.65);
-        z-index: 99999;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-    ">
-        <div style="
-            width: 100%;
-            max-width: 460px;
-            background: linear-gradient(135deg, #151515 0%, #222 100%);
-            border: 1px solid rgba(229,0,0,0.25);
-            border-left: 4px solid #e50000;
-            border-radius: 16px;
-            padding: 24px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.45);
-            color: #fff;
-            font-family: Arial, sans-serif;
-        ">
-            <div style="
-                font-size: 1.2rem;
-                font-weight: 800;
-                color: #e50000;
-                margin-bottom: 10px;
-            ">
-                Atualização de segurança
-            </div>
-
-            <div style="
-                font-size: 0.95rem;
-                color: #d0d0d0;
-                line-height: 1.6;
-                margin-bottom: 22px;
-            ">
-                Deseja trocar sua senha agora para reforçar a segurança da sua conta?
-            </div>
-
+    <div id="password-change-modal-overlay" style="position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 99999; display: flex; align-items: center; justify-content: center; padding: 20px;">
+        <div style="width: 100%; max-width: 460px; background: var(--dropdown-bg); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 16px; padding: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.45); color: var(--text-primary); font-family: Arial, sans-serif;">
+            <div style="font-size: 1.2rem; font-weight: 800; color: var(--accent); margin-bottom: 10px;">Atualização de segurança</div>
+            <div style="font-size: 0.95rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 22px;">Deseja trocar sua senha agora para reforçar a segurança da sua conta?</div>
             <div style="display: flex; gap: 12px; justify-content: flex-end;">
-                <button
-                    type="button"
-                    id="password-change-no"
-                    style="
-                        padding: 10px 18px;
-                        border: 1px solid rgba(255,255,255,0.12);
-                        background: rgba(255,255,255,0.04);
-                        color: #fff;
-                        border-radius: 10px;
-                        cursor: pointer;
-                        font-weight: 700;
-                    "
-                >
-                    Agora não
-                </button>
-
-                <button
-                    type="button"
-                    id="password-change-yes"
-                    style="
-                        padding: 10px 18px;
-                        border: none;
-                        background: linear-gradient(135deg, #e50000 0%, #cc0000 100%);
-                        color: #fff;
-                        border-radius: 10px;
-                        cursor: pointer;
-                        font-weight: 800;
-                    "
-                >
-                    Sim, trocar senha
-                </button>
+                <button type="button" id="password-change-no" style="padding: 10px 18px; border: 1px solid var(--border); background: transparent; color: var(--text-primary); border-radius: 10px; cursor: pointer; font-weight: 700;">Agora não</button>
+                <button type="button" id="password-change-yes" style="padding: 10px 18px; border: none; background: linear-gradient(135deg, #e50000 0%, #cc0000 100%); color: #fff; border-radius: 10px; cursor: pointer; font-weight: 800;">Sim, trocar senha</button>
             </div>
         </div>
     </div>
+    
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const modal = document.getElementById('password-change-modal-overlay');
+        const btnYes = document.getElementById('password-change-yes');
+        const btnNo = document.getElementById('password-change-no');
+
+        if (!modal || !btnYes || !btnNo) return;
+
+        function markPromptAsSeen() {
+            return fetch('{{ route("password.prompt.seen") }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({})
+            });
+        }
+
+        btnYes.addEventListener('click', function () {
+            markPromptAsSeen().finally(() => { window.location.href = '{{ route("profile.password.edit") }}'; });
+        });
+
+        btnNo.addEventListener('click', function () {
+            markPromptAsSeen().finally(() => { modal.remove(); });
+        });
+    });
+    </script>
 @endif
+
 @auth
+<!-- SCRIPT UNIFICADO: NOTIFICAÇÕES + TEMA INTELIGENTE -->
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    
+    // ==========================================
+    // 1. MOTOR DE TEMA (CLARO/ESCURO)
+    // ==========================================
+    const toggleBtn = document.getElementById('theme-toggle');
+    const html = document.documentElement;
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+
+    function applyTheme(theme, isManualOverride = false) {
+        html.setAttribute('data-theme', theme);
+        if (isManualOverride) {
+            localStorage.setItem('user_theme_override', theme);
+            saveThemeToDatabase(theme);
+        }
+    }
+
+    function initializeTheme() {
+        const userOverride = localStorage.getItem('user_theme_override');
+        if (userOverride) {
+            applyTheme(userOverride, false);
+        } else {
+            applyTheme(systemPrefersDark.matches ? 'dark' : 'light', false);
+        }
+    }
+
+    systemPrefersDark.addEventListener('change', (e) => {
+        if (!localStorage.getItem('user_theme_override')) {
+            applyTheme(e.matches ? 'dark' : 'light', false);
+        }
+    });
+
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            applyTheme(newTheme, true);
+        });
+    }
+
+    async function saveThemeToDatabase(theme) {
+        try {
+            await fetch('{{ route("theme.toggle") }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ theme: theme })
+            });
+        } catch (error) { console.error('Erro ao salvar tema no banco:', error); }
+    }
+
+    initializeTheme(); // Inicia o tema
+
+    // ==========================================
+    // 2. MOTOR DE NOTIFICAÇÕES (DROPDOWN + PUSH)
+    // ==========================================
     const bell = document.getElementById('notificationBell');
     const dropdown = document.getElementById('notificationDropdown');
     const badge = document.getElementById('notificationBadge');
     const list = document.getElementById('notificationList');
     const markAllBtn = document.getElementById('markAllNotificationsRead');
-    const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
 
-    if (!bell || !dropdown || !badge || !list || !markAllBtn || !csrfTokenMeta) {
-        console.error('Elementos de notificação não encontrados no layout.');
-        return;
-    }
-
-    const csrfToken = csrfTokenMeta.getAttribute('content');
-
-    function escapeHtml(text) {
-        if (text === null || text === undefined) return '';
-
-        return String(text)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#039;');
-    }
-
-    function formatDate(dateString) {
-        if (!dateString) return '';
-
-        const date = new Date(dateString);
-
-        if (isNaN(date.getTime())) {
-            return '';
-        }
-
-        return date.toLocaleString('pt-BR');
-    }
-
-    function updateBadge(count) {
-        const safeCount = Number(count) || 0;
-
-        if (safeCount > 0) {
-            badge.textContent = safeCount;
-            badge.style.display = 'flex';
-        } else {
-            badge.textContent = '0';
-            badge.style.display = 'none';
-        }
-    }
-
-    function renderEmpty(message = 'Nenhuma notificação.') {
-        list.innerHTML = `<div class="notification-empty">${escapeHtml(message)}</div>`;
-    }
+    // Funções de UI do Dropdown
+    function escapeHtml(text) { return String(text || '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[m]); }
+    function formatDate(dateString) { const d = new Date(dateString); return isNaN(d) ? '' : d.toLocaleString('pt-BR'); }
+    function updateBadge(count) { badge.textContent = count || 0; badge.style.display = count > 0 ? 'flex' : 'none'; }
+    function renderEmpty(msg = 'Nenhuma notificação.') { list.innerHTML = `<div class="notification-empty">${escapeHtml(msg)}</div>`; }
 
     function renderNotifications(notifications) {
-        if (!Array.isArray(notifications) || notifications.length === 0) {
-            renderEmpty();
-            return;
-        }
-
-        list.innerHTML = notifications.map(notification => {
-            const link = notification.link ? notification.link : '#';
-            const title = escapeHtml(notification.title || 'Notificação');
-            const isUnread = !notification.is_read;
-
-            return `
-                <a href="${link}"
-                   class="notification-item ${isUnread ? 'unread' : ''}"
-                   data-id="${notification.id}">
-                    <div class="notification-item-title">${title}</div>
-                    <div class="notification-item-time">${formatDate(notification.created_at)}</div>
-                </a>
-            `;
-        }).join('');
-
-        bindNotificationClicks();
-    }
-
-    function bindNotificationClicks() {
-        const items = document.querySelectorAll('.notification-item');
-
-        items.forEach(item => {
-            item.addEventListener('click', function () {
-                const id = this.dataset.id;
-
-                if (!id) return;
-
-                markAsRead(id);
-            });
+        if (!Array.isArray(notifications) || notifications.length === 0) return renderEmpty();
+        list.innerHTML = notifications.map(n => `
+            <a href="${n.link || '#'}" class="notification-item ${!n.is_read ? 'unread' : ''}" data-id="${n.id}">
+                <div class="notification-item-title">${escapeHtml(n.title || 'Notificação')}</div>
+                <div class="notification-item-time">${formatDate(n.created_at)}</div>
+            </a>
+        `).join('');
+        
+        document.querySelectorAll('.notification-item').forEach(item => {
+            item.addEventListener('click', function() { if(this.dataset.id) markAsRead(this.dataset.id); });
         });
     }
 
-    async function safeJsonResponse(response) {
-        const rawText = await response.text();
-
-        if (!response.ok) {
-            console.error('Resposta do servidor:', rawText);
-            throw new Error(`Erro HTTP ${response.status}`);
-        }
-
+    // Funções de API do Dropdown
+    async function fetchDropdownNotifications() {
         try {
-            return JSON.parse(rawText);
-        } catch (error) {
-            console.error('Resposta recebida não é JSON:', rawText);
-            throw new Error('Resposta inválida do servidor');
-        }
-    }
-
-    async function fetchNotifications() {
-        try {
-            const response = await fetch(`{{ route('notifications.fetch') }}`, {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            });
-
-            const data = await safeJsonResponse(response);
-
-            updateBadge(data.unread_count || 0);
-            renderNotifications(data.notifications || []);
-        } catch (error) {
-            console.error('Erro ao buscar notificações:', error);
-            renderEmpty('Não foi possível carregar as notificações.');
-        }
+            const res = await fetch(`{{ route('notifications.fetch') }}`, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
+            if(res.ok) {
+                const data = await res.json();
+                updateBadge(data.unread_count || 0);
+                renderNotifications(data.notifications || []);
+            }
+        } catch (e) { console.error(e); renderEmpty('Erro ao carregar.'); }
     }
 
     async function markAsRead(id) {
         try {
-            const response = await fetch(`/notifications/${id}/read`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken,
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: JSON.stringify({})
-            });
-
-            await safeJsonResponse(response);
-            fetchNotifications();
-        } catch (error) {
-            console.error('Erro ao marcar notificação como lida:', error);
-        }
+            await fetch(`/notifications/${id}/read`, { method: 'POST', headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json', 'Content-Type': 'application/json' }, body: '{}' });
+            fetchDropdownNotifications();
+        } catch (e) { console.error(e); }
     }
 
     async function markAllAsRead() {
         try {
-            const response = await fetch(`{{ route('notifications.readAll') }}`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken,
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: JSON.stringify({})
-            });
+            await fetch(`{{ route('notifications.readAll') }}`, { method: 'POST', headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json', 'Content-Type': 'application/json' }, body: '{}' });
+            fetchDropdownNotifications();
+        } catch (e) { console.error(e); }
+    }
 
-            await safeJsonResponse(response);
-            fetchNotifications();
-        } catch (error) {
-            console.error('Erro ao marcar todas como lidas:', error);
+    // Eventos do Dropdown
+    if(bell) bell.addEventListener('click', e => { e.stopPropagation(); dropdown.classList.toggle('show'); });
+    if(markAllBtn) markAllBtn.addEventListener('click', e => { e.preventDefault(); markAllAsRead(); });
+    document.addEventListener('click', e => { if (dropdown && !dropdown.contains(e.target) && !bell.contains(e.target)) dropdown.classList.remove('show'); });
+
+    // ==========================================
+    // 3. WEB PUSH NOTIFICATIONS (SISTEMA OPERACIONAL)
+    // ==========================================
+    function requestNotificationPermission() {
+        if ('Notification' in window && Notification.permission === 'default') {
+            Notification.requestPermission();
         }
     }
 
-    bell.addEventListener('click', function (event) {
-        event.stopPropagation();
-        dropdown.classList.toggle('show');
-    });
+    function registerServiceWorker() {
+        if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(e => console.error(e));
+    }
 
-    markAllBtn.addEventListener('click', function (event) {
-        event.preventDefault();
-        markAllAsRead();
-    });
+    function playNotificationSound() {
+        try {
+            const audio = new Audio('/audio/notification.mp3'); 
+            audio.volume = 0.5; 
+            audio.play().catch(e => {}); 
+        } catch (e) {}
+    }
 
-    document.addEventListener('click', function (event) {
-        if (!dropdown.contains(event.target) && !bell.contains(event.target)) {
-            dropdown.classList.remove('show');
-        }
-    });
+    async function checkPushNotifications() {
+        if (Notification.permission !== 'granted') return;
+        try {
+            const res = await fetch('{{ route("notifications.check") }}', { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
+            if(res.ok) {
+                const data = await res.json();
+                if (data.notifications && data.notifications.length > 0) {
+                    playNotificationSound();
+                    navigator.serviceWorker.ready.then(reg => {
+                        data.notifications.forEach(n => {
+                            reg.showNotification(n.title, {
+                                body: n.body, icon: '/favicon.ico', badge: '/favicon.ico',
+                                vibrate: [200, 100, 200], data: { url: n.url }, requireInteraction: false
+                            });
+                        });
+                    });
+                    // Atualiza o dropdown junto com o push!
+                    fetchDropdownNotifications(); 
+                }
+            }
+        } catch (e) { console.error(e); }
+    }
 
-    fetchNotifications();
-    setInterval(fetchNotifications, 15000);
+    // Inicializa tudo
+    fetchDropdownNotifications();
+    requestNotificationPermission();
+    registerServiceWorker();
+
+    // UM ÚNICO INTERVALO PARA TUDO (Economiza CPU e Servidor)
+    setInterval(() => {
+        fetchDropdownNotifications();
+        checkPushNotifications();
+    }, 15000);
 });
 </script>
 @endauth
 
-@auth
-<script>
-// Pedir permissão para notificações (aparece UMA VEZ)
-if ('Notification' in window && Notification.permission === 'default') {
-    Notification.requestPermission().then(permission => {
-        if (permission === 'granted') {
-            console.log('✓ Notificações ativadas!');
-        }
-    });
-}
-
-// Registrar Service Worker
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js').catch(error => {
-        console.log('SW não registrado:', error);
-    });
-}
-
-// Verificar notificações a cada 30 segundos
-setInterval(async () => {
-    try {
-        const response = await fetch('/api/pending-notifications');
-        const data = await response.json();
-
-        data.notifications.forEach(notification => {
-            if (Notification.permission === 'granted') {
-                new Notification(notification.title, {
-                    body: notification.body,
-                    icon: '/images/tapemag-logo.png',
-                    badge: '/images/badge.png',
-                    tag: notification.id, // Evita notificações duplicadas
-                    requireInteraction: false
-                });
-            }
-        });
-    } catch (error) {
-        console.log('Erro ao buscar notificações:', error);
-    }
-}, 30000); // 30 segundos
-
-</script>
-@endauth
 </body>
 </html>

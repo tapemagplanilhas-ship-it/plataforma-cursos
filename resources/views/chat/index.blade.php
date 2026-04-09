@@ -13,7 +13,7 @@
 */
 
 /* =====================================================
-   1. RESET E VARIÁVEIS CSS
+   1. RESET E VARIÁVEIS CSS (PONTE COM O TEMA GLOBAL)
    ===================================================== */
 
 *, *::before, *::after {
@@ -23,34 +23,34 @@
 }
 
 :root {
-    /* CORES */
-    --color-bg-dark: #0a0a0a;
-    --color-bg-medium: #121212;
-    --color-bg-light: #1a1a1a;
-    --color-bg-input: #161616;
+    /* CORES (Herdando do tema global var(--bg-primary), etc) */
+    --color-bg-dark: var(--bg-primary);
+    --color-bg-medium: var(--bg-secondary);
+    --color-bg-light: var(--bg-tertiary);
+    --color-bg-input: var(--bg-input);
     
-    --color-primary: #e50000;
-    --color-primary-dark: #cc0000;
+    --color-primary: var(--accent);
+    --color-primary-dark: var(--accent-hover);
     --color-primary-light: rgba(229, 0, 0, 0.15);
-    --color-primary-hover: linear-gradient(135deg, #cc0000 0%, #990000 100%);
-    --color-primary-gradient: linear-gradient(135deg, #e50000 0%, #cc0000 100%);
+    --color-primary-hover: linear-gradient(135deg, var(--accent-hover) 0%, #990000 100%);
+    --color-primary-gradient: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
     
     --color-secondary: #00cc66;
     
-    --color-text-light: #fff;
-    --color-text-medium: #e8e8e8;
-    --color-text-dark: #888;
-    --color-text-placeholder: #555;
-    --color-text-muted: #666;
+    --color-text-light: var(--text-primary);
+    --color-text-medium: var(--text-secondary);
+    --color-text-dark: var(--text-tertiary);
+    --color-text-placeholder: var(--text-placeholder);
+    --color-text-muted: var(--text-tertiary);
     
     /* BORDAS */
-    --border-default: rgba(229, 0, 0, 0.1);
-    --border-active: rgba(229, 0, 0, 0.4);
-    --border-sidebar: rgba(229, 0, 0, 0.15);
+    --border-default: var(--border);
+    --border-active: var(--accent);
+    --border-sidebar: var(--border-light);
     
     /* SOMBRAS */
     --shadow-avatar: 0 4px 12px rgba(229, 0, 0, 0.25);
-    --shadow-sidebar: inset -8px 0 24px rgba(0, 0, 0, 0.4);
+    --shadow-sidebar: inset -8px 0 24px rgba(0, 0, 0, 0.1);
     --shadow-hover: 0 4px 8px rgba(0, 0, 0, 0.2);
     
     /* TIPOGRAFIA */
@@ -99,6 +99,7 @@ html, body {
     overflow: hidden !important;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -144,7 +145,7 @@ button {
 .chat-sidebar {
     display: none;
     flex-direction: column;
-    background: linear-gradient(180deg, var(--color-bg-medium) 0%, #0f0f0f 100%);
+    background: linear-gradient(180deg, var(--color-bg-medium) 0%, var(--color-bg-dark) 100%);
     border-right: 1px solid var(--border-sidebar);
     box-shadow: var(--shadow-sidebar);
     overflow: hidden;
@@ -196,7 +197,7 @@ button {
 
 .user-item {
     padding: var(--sp-md) var(--sp-md);
-    background-color: rgba(26, 26, 26, 0.6);
+    background-color: var(--color-bg-light);
     border-radius: var(--radius-md);
     border-left: 3px solid transparent;
     transition: all var(--trans-normal);
@@ -226,7 +227,7 @@ button {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--color-text-light);
+    color: #fff; /* Avatar sempre branco para contraste com vermelho */
     font-weight: 700;
     font-size: var(--font-md);
     flex-shrink: 0;
@@ -279,7 +280,7 @@ button {
    ===================================================== */
 
 .chat-header {
-    background: linear-gradient(90deg, var(--color-bg-light) 0%, #161616 100%);
+    background: linear-gradient(90deg, var(--color-bg-light) 0%, var(--color-bg-input) 100%);
     border-bottom: 1px solid var(--border-default);
     padding: var(--sp-xl) var(--sp-xxxl);
     display: flex;
@@ -315,24 +316,23 @@ button {
     50% { opacity: 0.7; transform: scale(0.95); }
 }
 
-
 /* =====================================================
-   7. CHAT MESSAGES AREA (CORRIGIDO PARA SCROLL) ✅
+   7. CHAT MESSAGES AREA
    ===================================================== */
 
 .chat-main {
     display: flex;
     flex-direction: column;
-    min-height: 0;           /* ESSENCIAL para flexbox com scroll */
-    overflow: hidden;        /* O overflow é controlado por #chat-box */
+    min-height: 0;
+    overflow: hidden;
 }
 
 #chat-box {
-    flex: 1;                 /* Ocupa espaço máximo disponível */
-    min-height: 0;           /* ESSENCIAL para scroll funcionar */
-    overflow-y: auto;        /* ✅ ATIVA O SCROLL VERTICAL */
-    overflow-x: hidden;      /* Remove scroll horizontal */
-    scroll-behavior: smooth; /* Scroll suave ao pular */
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
     padding: var(--sp-xxxl);
     display: flex;
     flex-direction: column;
@@ -340,7 +340,6 @@ button {
     gap: var(--sp-md);
 }
 
-/* Scrollbar customizada */
 #chat-box::-webkit-scrollbar {
     width: 8px;
 }
@@ -398,39 +397,6 @@ button {
     color: var(--color-text-dark);
 }
 
-/* =====================================================
-   SEPARADOR DE DATA - WhatsApp Style
-   ===================================================== */
-
-.date-separator {
-    text-align: center;
-    margin: var(--sp-xxxl) 0 var(--sp-xl) 0;
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    pointer-events: none;
-}
-
-.date-separator span {
-    background-color: var(--color-bg-light);
-    color: var(--color-text-dark);
-    font-size: var(--font-sm);
-    padding: var(--sp-sm) var(--sp-md);
-    border-radius: var(--radius-md);
-    font-weight: 600;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    white-space: nowrap;
-}
-
-.date-separator::before,
-.date-separator::after {
-    content: '';
-    flex-grow: 1;
-    height: 1px;
-    background-color: var(--border-default);
-    margin: 0 var(--sp-md);
-}
 .msg-bubble.mine .msg-name {
     color: var(--color-primary);
 }
@@ -459,9 +425,12 @@ button {
 }
 
 .msg-bubble.mine .msg-text {
-    background: var(--color-primary-gradient);
-    color: var(--color-text-light);
+    /* Trocamos a variável quebrada por uma cor sólida e garantida */
+    background: #e50000; 
+    background: linear-gradient(135deg, #e50000 0%, #cc0000 100%);
+    color: #ffffff !important; /* Força o texto a ficar branco */
     border-bottom-right-radius: var(--radius-sm);
+    box-shadow: 0 2px 5px rgba(229, 0, 0, 0.2); /* Dá um leve destaque 3D */
 }
 
 .msg-bubble.other .msg-text {
@@ -534,7 +503,7 @@ button {
 
 .msg-action-btn:hover {
     background-color: var(--color-primary);
-    color: var(--color-text-light);
+    color: #fff;
 }
 
 .empty-state {
@@ -558,12 +527,43 @@ button {
     font-size: var(--font-base);
 }
 
+/* SEPARADOR DE DATA */
+.date-separator {
+    text-align: center;
+    margin: var(--sp-xxxl) 0 var(--sp-xl) 0;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+}
+
+.date-separator span {
+    background-color: var(--color-bg-light);
+    color: var(--color-text-dark);
+    font-size: var(--font-sm);
+    padding: var(--sp-sm) var(--sp-md);
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    white-space: nowrap;
+}
+
+.date-separator::before,
+.date-separator::after {
+    content: '';
+    flex-grow: 1;
+    height: 1px;
+    background-color: var(--border-default);
+    margin: 0 var(--sp-md);
+}
+
 /* =====================================================
    8. INPUT AREA
    ===================================================== */
 
 .chat-input-area {
-    background: linear-gradient(180deg, #161616 0%, #0f0f0f 100%);
+    background: linear-gradient(180deg, var(--color-bg-input) 0%, var(--color-bg-dark) 100%);
     border-top: 1px solid var(--border-default);
     padding: var(--sp-xl) var(--sp-xxxl);
     display: flex;
@@ -603,7 +603,7 @@ button {
 
 .file-preview-remove:hover {
     background-color: var(--color-primary);
-    color: var(--color-text-light);
+    color: #fff;
 }
 
 .input-controls {
@@ -617,7 +617,7 @@ button {
     display: flex;
     gap: var(--sp-sm);
     align-items: center;
-    background-color: rgba(26, 26, 26, 0.6);
+    background-color: var(--color-bg-light);
     border: 1px solid var(--border-default);
     border-radius: var(--radius-md);
     padding: var(--sp-md) var(--sp-lg);
@@ -626,8 +626,7 @@ button {
 
 .input-wrapper:focus-within {
     border-color: var(--border-active);
-    background-color: rgba(26, 26, 26, 0.9);
-    box-shadow: 0 0 0 2px var(--border-active);
+    box-shadow: 0 0 0 2px rgba(229, 0, 0, 0.1);
 }
 
 .chat-input-area input[type="text"] {
@@ -664,14 +663,24 @@ button {
 
 .chat-input-area button[type="submit"] {
     padding: var(--sp-md) var(--sp-xxl);
-    background: var(--color-primary-gradient);
-    color: var(--color-text-light);
+    /* Forçamos o fundo vermelho vibrante com degradê */
+    background: #e50000 !important; 
+    background: linear-gradient(135deg, #e50000 0%, #cc0000 100%) !important;
+    /* Forçamos o texto a ser sempre branco */
+    color: #ffffff !important;
     border-radius: var(--radius-md);
     font-weight: 700;
     transition: all var(--trans-fast);
     min-height: 44px;
     flex-shrink: 0;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 4px 10px rgba(229, 0, 0, 0.3); /* Sombra vermelha elegante */
 }
+
 
 .chat-input-area button[type="submit"]:hover {
     background: var(--color-primary-hover);
@@ -709,7 +718,7 @@ button {
 }
 
 .edit-modal-content {
-    background: linear-gradient(135deg, var(--color-bg-light) 0%, #0f0f0f 100%);
+    background: linear-gradient(135deg, var(--color-bg-light) 0%, var(--color-bg-dark) 100%);
     border: 1px solid var(--border-default);
     border-radius: var(--radius-lg);
     padding: var(--sp-xxxxl);
@@ -736,7 +745,7 @@ button {
 .edit-modal-input {
     width: 100%;
     padding: var(--sp-lg) var(--sp-md);
-    background-color: rgba(26, 26, 26, 0.6);
+    background-color: var(--color-bg-medium);
     border: 1px solid var(--border-default);
     border-radius: var(--radius-md);
     color: var(--color-text-light);
@@ -748,9 +757,8 @@ button {
 .edit-modal-input:focus {
     outline: none;
     border-color: var(--border-active);
-    box-shadow: 0 0 0 2px var(--border-active);
+    box-shadow: 0 0 0 2px rgba(229, 0, 0, 0.1);
 }
-
 
 .char-edit-count {
     font-size: var(--font-sm);
@@ -771,6 +779,7 @@ button {
     font-weight: 700;
     min-height: 44px;
     transition: all var(--trans-fast);
+    border: none;
 }
 
 .user-badge {
@@ -778,7 +787,7 @@ button {
     height: 22px;
     padding: 0 6px;
     border-radius: 999px;
-    background: #e50000;
+    background: var(--color-primary);
     color: #fff;
     font-size: 0.75rem;
     font-weight: 700;
@@ -791,7 +800,7 @@ button {
 
 .edit-modal-btn-save {
     background: var(--color-primary-gradient);
-    color: var(--color-text-light);
+    color: #fff;
 }
 
 .edit-modal-btn-save:hover {
@@ -813,80 +822,35 @@ button {
    10. RESPONSIVIDADE
    ===================================================== */
 
-/* Tablets (768px+) */
 @media (min-width: 768px) {
-    .chat-container {
-        grid-template-columns: 220px 1fr;
-    }
-    
-    .chat-sidebar {
-        display: flex;
-    }
+    .chat-container { grid-template-columns: 220px 1fr; }
+    .chat-sidebar { display: flex; }
 }
 
-/* Desktops (1024px+) */
 @media (min-width: 1024px) {
-    .chat-container {
-        grid-template-columns: 280px 1fr;
-    }
-    
-    .msg-bubble {
-        max-width: 70%;
-    }
+    .chat-container { grid-template-columns: 280px 1fr; }
+    .msg-bubble { max-width: 70%; }
 }
 
-/* Mobile Vertical (9:16) */
 @media (max-aspect-ratio: 9/16) and (max-width: 480px) {
-    .chat-header h1 {
-        font-size: var(--font-base);
-    }
-    
-    .chat-header-left span {
-        display: none;
-    }
-    
-    #chat-box {
-        padding: var(--sp-lg);
-    }
-    
-    .msg-bubble {
-        max-width: 95%;
-    }
-    
-    .msg-text {
-        font-size: var(--font-sm);
-        padding: var(--sp-sm) var(--sp-md);
-    }
-    
-    .msg-media {
-        max-width: 250px;
-    }
-    
-    .chat-input-area button[type="submit"] {
-        padding: var(--sp-md) var(--sp-lg);
-        min-height: 40px;
-    }
+    .chat-header h1 { font-size: var(--font-base); }
+    .chat-header-left span { display: none; }
+    #chat-box { padding: var(--sp-lg); }
+    .msg-bubble { max-width: 95%; }
+    .msg-text { font-size: var(--font-sm); padding: var(--sp-sm) var(--sp-md); }
+    .msg-media { max-width: 250px; }
+    .chat-input-area button[type="submit"] { padding: var(--sp-md) var(--sp-lg); min-height: 40px; }
 }
 
-/* Focus Visível (Acessibilidade) */
 :focus-visible {
     outline: 2px solid var(--color-primary);
     outline-offset: 2px;
 }
 
-/* Screen Reader Only */
 .sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border-width: 0;
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0;
 }
-
 </style>
 
 <div class="chat-container">
@@ -937,13 +901,13 @@ button {
             Conversando com: <strong id="selected-user" style="color: var(--color-primary);">Todos</strong>
         </span>
         <div class="chat-header-right">
-    <button class="reset-filter-btn" onclick="resetUserFilter()" title="Voltar para conversa com todos" style="padding: 8px 16px; background: rgba(229, 0, 0, 0.15); color: #ffffff; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+    <button class="reset-filter-btn" onclick="resetUserFilter()" title="Voltar para conversa com todos" style="padding: 8px 16px; background: rgba(229, 0, 0, 0.15); color: var(--color-primary); border-radius: 8px; border: none; font-weight: 600; cursor: pointer; transition: all 0.2s;">
         Ver Todos
     </button>
 </div>
     </div>
     <div class="chat-header-right">
-        <a href="{{ route('courses.index') }}" class="chat-exit-btn">← Voltar</a>
+        <a href="{{ route('courses.index') }}" class="chat-exit-btn" style="color: var(--color-text-medium); text-decoration: none; font-weight: 600;">← Voltar</a>
     </div>
 </div>
 
@@ -1040,7 +1004,7 @@ button {
             maxlength="500"
             placeholder="Edite sua mensagem..."
         >
-        <div class="char-edit-count" style="font-size: 0.75rem; color: #666; margin-bottom: 16px;">0/500</div>
+        <div class="char-edit-count" style="font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 16px;">0/500</div>
         <div class="edit-modal-buttons">
             <button class="edit-modal-btn edit-modal-btn-save" onclick="confirmEdit()">✅ Salvar</button>
             <button class="edit-modal-btn edit-modal-btn-cancel" onclick="closeEditModal()">❌ Cancelar</button>
@@ -1048,10 +1012,7 @@ button {
     </div>
 </div>
 
-
 <script>
-
-
     const chatBox = document.getElementById('chat-box');
     const chatInput = document.getElementById('chat-input');
     const charCount = document.getElementById('char-count');
@@ -1072,24 +1033,24 @@ button {
     let sidebarPauseTimer = null;
     let lastSidebarHash = '';
 
-
     usersList.addEventListener('scroll', () => pauseSidebarRefresh(1800));
-usersList.addEventListener('mouseenter', () => pauseSidebarRefresh(1800));
-usersList.addEventListener('wheel', () => pauseSidebarRefresh(1800));
-usersList.addEventListener('touchstart', () => pauseSidebarRefresh(1800));
-usersList.addEventListener('touchmove', () => pauseSidebarRefresh(1800));
+    usersList.addEventListener('mouseenter', () => pauseSidebarRefresh(1800));
+    usersList.addEventListener('wheel', () => pauseSidebarRefresh(1800));
+    usersList.addEventListener('touchstart', () => pauseSidebarRefresh(1800));
+    usersList.addEventListener('touchmove', () => pauseSidebarRefresh(1800));
 
-function buildSidebarHash(users) {
-    return JSON.stringify(
-        users.map(user => ({
-            id: user.id,
-            unread_count: user.unread_count || 0,
-            last_message_body: user.last_message_body || '',
-            last_message_time: user.last_message_time || '',
-            last_message_at: user.last_message_at || 0
-        }))
-    );
-}
+    function buildSidebarHash(users) {
+        return JSON.stringify(
+            users.map(user => ({
+                id: user.id,
+                unread_count: user.unread_count || 0,
+                last_message_body: user.last_message_body || '',
+                last_message_time: user.last_message_time || '',
+                last_message_at: user.last_message_at || 0
+            }))
+        );
+    }
+    
     // Scroll para o final
     function scrollToBottom() {
         chatBox.scrollTop = chatBox.scrollHeight;
@@ -1102,74 +1063,71 @@ function buildSidebarHash(users) {
         charCount.textContent = chatInput.value.length + '/500';
     });
 
-function selectUser(userId, userName, element) {
-    selectedUserId = userId;
-    selectedUserSpan.textContent = userName || 'Usuário';
-    chatInput.placeholder = `Mensagem privada para ${userName || 'Usuário'}...`;
+    function selectUser(userId, userName, element) {
+        selectedUserId = userId;
+        selectedUserSpan.textContent = userName || 'Usuário';
+        chatInput.placeholder = `Mensagem privada para ${userName || 'Usuário'}...`;
 
-    document.querySelectorAll('.user-item').forEach(item => {
-        item.classList.remove('active');
-    });
+        document.querySelectorAll('.user-item').forEach(item => {
+            item.classList.remove('active');
+        });
 
-    if (element) {
-        element.classList.add('active');
-    }
+        if (element) {
+            element.classList.add('active');
+        }
 
-    fetchMessages();
-    reloadSidebar();
-}
-
-// 2. Resetar filtro para "Todos"
-function resetUserFilter() {
-    selectedUserId = null;
-    selectedUserSpan.textContent = 'Todos';
-    chatInput.placeholder = 'Digite sua mensagem para todos...';
-
-    document.querySelectorAll('.user-item').forEach(item => {
-        item.classList.remove('active');
-    });
-
-    fetchMessages();
-    reloadSidebar();
-}
-
-// 3. Enviar mensagem (Blindado contra string "null")
-document.getElementById('chat-form').addEventListener('submit', (e) => {
-    e.preventDefault();
-
-    const body = chatInput.value.trim();
-    if (!body && !selectedFile) return;
-
-    const formData = new FormData();
-    formData.append('body', body);
-    
-    // 🛡️ CORREÇÃO CRÍTICA: Só faz o append se o ID existir. 
-    // Evita enviar a string "null" que quebra a validação do Laravel.
-    if (selectedUserId !== null) {
-        formData.append('recipient_id', selectedUserId);
-    }
-    
-    if (selectedFile) {
-        formData.append('media', selectedFile);
-    }
-    formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
-
-    fetch('{{ route("chat.store") }}', {
-        method: 'POST',
-        body: formData,
-    }).then(response => {
-    if (response.ok) {
-        chatInput.value = '';
-        charCount.textContent = '0/500';
-        removeFile();
         fetchMessages();
         reloadSidebar();
-    } else {
-        console.error('Erro ao enviar mensagem');
     }
-});
-    });
 
+    // 2. Resetar filtro para "Todos"
+    function resetUserFilter() {
+        selectedUserId = null;
+        selectedUserSpan.textContent = 'Todos';
+        chatInput.placeholder = 'Digite sua mensagem para todos...';
+
+        document.querySelectorAll('.user-item').forEach(item => {
+            item.classList.remove('active');
+        });
+
+        fetchMessages();
+        reloadSidebar();
+    }
+
+    // 3. Enviar mensagem
+    document.getElementById('chat-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const body = chatInput.value.trim();
+        if (!body && !selectedFile) return;
+
+        const formData = new FormData();
+        formData.append('body', body);
+        
+        if (selectedUserId !== null) {
+            formData.append('recipient_id', selectedUserId);
+        }
+        
+        if (selectedFile) {
+            formData.append('media', selectedFile);
+        }
+        formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+
+        fetch('{{ route("chat.store") }}', {
+            method: 'POST',
+            body: formData,
+        }).then(response => {
+            if (response.ok) {
+                chatInput.value = '';
+                charCount.textContent = '0/500';
+                removeFile();
+                fetchMessages();
+                reloadSidebar();
+            } else {
+                console.error('Erro ao enviar mensagem');
+            }
+        });
+    });
 
     // Preview de arquivo
     fileInput.addEventListener('change', (e) => {
@@ -1190,188 +1148,181 @@ document.getElementById('chat-form').addEventListener('submit', (e) => {
         filePreview.innerHTML = '';
     }
 
-function renderMessage(msg) {
-    const isMine = Number(msg.user_id) === Number(currentId);
-    const userName = escapeHtml(msg.user?.name || 'Usuário');
-    const body = msg.body ?? '';
-    const safeBody = escapeHtml(body);
-    const mediaType = msg.media_type ?? '';
-    const mediaPath = msg.media_path ?? '';
+    function renderMessage(msg) {
+        const isMine = Number(msg.user_id) === Number(currentId);
+        const userName = escapeHtml(msg.user?.name || 'Usuário');
+        const body = msg.body ?? '';
+        const safeBody = escapeHtml(body);
+        const mediaType = msg.media_type ?? '';
+        const mediaPath = msg.media_path ?? '';
 
-    const isImage = mediaType.includes('image');
-    const isVideo = mediaType.includes('video');
-    const isFile = mediaPath && !isImage && !isVideo;
+        const isImage = mediaType.includes('image');
+        const isVideo = mediaType.includes('video');
+        const isFile = mediaPath && !isImage && !isVideo;
 
-    let mediaHtml = '';
+        let mediaHtml = '';
 
-    if (mediaPath) {
-        if (isImage) {
-            mediaHtml = `
-                <div class="msg-media">
-                    <img src="/storage/${mediaPath}" alt="Imagem">
-                </div>
-            `;
-        } else if (isVideo) {
-            mediaHtml = `
-                <div class="msg-media">
-                    <video controls>
-                        <source src="/storage/${mediaPath}" type="${mediaType}">
-                    </video>
-                </div>
-            `;
-        } else if (isFile) {
-            const filename = mediaPath.split('/').pop() || 'arquivo';
-            mediaHtml = `
-                <a href="/storage/${mediaPath}" download class="msg-file">
-                    📄 ${escapeHtml(filename)}
-                </a>
-            `;
-        }
-    }
-
-    const time = msg.created_at
-        ? new Date(msg.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
-        : '--:--';
-
-    const safeBodyForEdit = JSON.stringify(body);
-
-    const actions = isMine ? `
-        <div class="msg-actions">
-            ${body ? `<button class="msg-action-btn" onclick='openEditModal(${msg.id}, ${safeBodyForEdit})'>✏️</button>` : ''}
-            <button class="msg-action-btn" onclick="deleteMessage(${msg.id})">🗑️</button>
-        </div>
-    ` : '';
-
-    return `
-        <div class="msg-bubble ${isMine ? 'mine' : 'other'}" data-msg-id="${msg.id}">
-            <div class="msg-header">
-                <span class="msg-name">${userName}</span>
-            </div>
-            <div class="msg-container">
-                <div class="msg-content">
-                    ${body ? `<div class="msg-text">${safeBody}</div>` : ''}
-                    ${mediaHtml}
-                    <div class="msg-meta">
-                        <span>${time}</span>
-                        ${actions}
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-   // Funções auxiliares de data
-function isSameDay(d1, d2) {
-    return d1.getFullYear() === d2.getFullYear() &&
-           d1.getMonth() === d2.getMonth() &&
-           d1.getDate() === d2.getDate();
-}
-
-function isToday(date) {
-    const today = new Date();
-    return isSameDay(date, today);
-}
-
-function isYesterday(date) {
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    return isSameDay(date, yesterday);
-}
-
-function formatDateLabel(date) {
-    if (isToday(date)) return "Hoje";
-    if (isYesterday(date)) return "Ontem";
-    return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-}
-
-
-// Fetch de mensagens com agrupamento por data E FILTRO CORRETO
-function fetchMessages() {
-    // 🔥 CORREÇÃO 1: Avisa o Laravel qual usuário está selecionado via URL
-    const url = selectedUserId 
-        ? `{{ route("chat.fetch") }}?selected_user_id=${selectedUserId}` 
-        : '{{ route("chat.fetch") }}';
-
-    fetch(url)
-        .then(res => res.json())
-        .then(msgs => {
-            
-            // 🔥 CORREÇÃO 2: Filtro inteligente no Frontend
-            // Garante que mostra o que você enviou PARA ele e o que ele enviou PARA você
-            const filteredMsgs = selectedUserId 
-                ? msgs.filter(msg => 
-                    (msg.user_id === selectedUserId && msg.recipient_id === currentId) || 
-                    (msg.user_id === currentId && msg.recipient_id === selectedUserId)
-                  )
-                : msgs.filter(msg => msg.recipient_id === null); // Chat Geral
-            
-            const newIds = filteredMsgs.map(m => m.id);
-            const shouldScroll = lastMessageCount < filteredMsgs.length || chatBox.scrollTop >= chatBox.scrollHeight - chatBox.clientHeight - 50;
-
-            let htmlContent = [];
-            let lastDate = null;
-
-            // Se não há mensagens no chat atual
-            if (filteredMsgs.length === 0) {
-                const emptyTitle = selectedUserId ? '📭 Nenhuma mensagem' : '🚀 Seja o primeiro a conversar!';
-                const emptyText = selectedUserId ? 'Envie um "Olá" para iniciar a conversa privada.' : 'Envie uma mensagem para iniciar a conversa com sua equipe no chat geral.';
-                
-                chatBox.innerHTML = `
-                    <div class="empty-state">
-                        <h2>${emptyTitle}</h2>
-                        <p>${emptyText}</p>
+        if (mediaPath) {
+            if (isImage) {
+                mediaHtml = `
+                    <div class="msg-media">
+                        <img src="/storage/${mediaPath}" alt="Imagem">
                     </div>
                 `;
-                lastMessageCount = 0;
-                messageIds = [];
-                return;
+            } else if (isVideo) {
+                mediaHtml = `
+                    <div class="msg-media">
+                        <video controls>
+                            <source src="/storage/${mediaPath}" type="${mediaType}">
+                        </video>
+                    </div>
+                `;
+            } else if (isFile) {
+                const filename = mediaPath.split('/').pop() || 'arquivo';
+                mediaHtml = `
+                    <a href="/storage/${mediaPath}" download class="msg-file">
+                        📄 ${escapeHtml(filename)}
+                    </a>
+                `;
             }
+        }
 
-            filteredMsgs.forEach(msg => {
-                const msgDate = new Date(msg.created_at);
-                
-                // Adiciona separador de data se mudou
-                if (!lastDate || !isSameDay(msgDate, lastDate)) {
-                    htmlContent.push(`
-                        <div class="date-separator">
-                            <span>${formatDateLabel(msgDate)}</span>
+        const time = msg.created_at
+            ? new Date(msg.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+            : '--:--';
+
+        const safeBodyForEdit = JSON.stringify(body);
+
+        const actions = isMine ? `
+            <div class="msg-actions">
+                ${body ? `<button class="msg-action-btn" onclick='openEditModal(${msg.id}, ${safeBodyForEdit})'>✏️</button>` : ''}
+                <button class="msg-action-btn" onclick="deleteMessage(${msg.id})">🗑️</button>
+            </div>
+        ` : '';
+
+        return `
+            <div class="msg-bubble ${isMine ? 'mine' : 'other'}" data-msg-id="${msg.id}">
+                <div class="msg-header">
+                    <span class="msg-name">${userName}</span>
+                </div>
+                <div class="msg-container">
+                    <div class="msg-content">
+                        ${body ? `<div class="msg-text">${safeBody}</div>` : ''}
+                        ${mediaHtml}
+                        <div class="msg-meta">
+                            <span>${time}</span>
+                            ${actions}
                         </div>
-                    `);
-                    lastDate = msgDate;
-                }
-                htmlContent.push(renderMessage(msg));
-            });
+                    </div>
+                </div>
+            </div>
+        `;
+    }
 
-            // Atualiza o chat apenas se houver mudanças
-            if (newIds.length !== messageIds.length || JSON.stringify(newIds) !== JSON.stringify(messageIds)) {
-                chatBox.innerHTML = htmlContent.join('');
-                messageIds = newIds;
-                if (shouldScroll || newIds.length > lastMessageCount) {
-                    scrollToBottom();
-                }
-            }
-            lastMessageCount = newIds.length;
-        })
-        .catch(error => console.error('Erro ao buscar mensagens:', error));
-}
+    // Funções auxiliares de data
+    function isSameDay(d1, d2) {
+        return d1.getFullYear() === d2.getFullYear() &&
+               d1.getMonth() === d2.getMonth() &&
+               d1.getDate() === d2.getDate();
+    }
 
-setInterval(fetchMessages, 2000);
+    function isToday(date) {
+        const today = new Date();
+        return isSameDay(date, today);
+    }
+
+    function isYesterday(date) {
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        return isSameDay(date, yesterday);
+    }
+
+    function formatDateLabel(date) {
+        if (isToday(date)) return "Hoje";
+        if (isYesterday(date)) return "Ontem";
+        return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    }
+
+    // Fetch de mensagens com agrupamento por data
+    function fetchMessages() {
+        const url = selectedUserId 
+            ? `{{ route("chat.fetch") }}?selected_user_id=${selectedUserId}` 
+            : '{{ route("chat.fetch") }}';
+
+        fetch(url)
+            .then(res => res.json())
+            .then(msgs => {
+                const filteredMsgs = selectedUserId 
+                    ? msgs.filter(msg => 
+                        (msg.user_id === selectedUserId && msg.recipient_id === currentId) || 
+                        (msg.user_id === currentId && msg.recipient_id === selectedUserId)
+                      )
+                    : msgs.filter(msg => msg.recipient_id === null);
+                
+                const newIds = filteredMsgs.map(m => m.id);
+                const shouldScroll = lastMessageCount < filteredMsgs.length || chatBox.scrollTop >= chatBox.scrollHeight - chatBox.clientHeight - 50;
+
+                let htmlContent = [];
+                let lastDate = null;
+
+                if (filteredMsgs.length === 0) {
+                    const emptyTitle = selectedUserId ? '📭 Nenhuma mensagem' : '🚀 Seja o primeiro a conversar!';
+                    const emptyText = selectedUserId ? 'Envie um "Olá" para iniciar a conversa privada.' : 'Envie uma mensagem para iniciar a conversa com sua equipe no chat geral.';
+                    
+                    chatBox.innerHTML = `
+                        <div class="empty-state">
+                            <h2>${emptyTitle}</h2>
+                            <p>${emptyText}</p>
+                        </div>
+                    `;
+                    lastMessageCount = 0;
+                    messageIds = [];
+                    return;
+                }
+
+                filteredMsgs.forEach(msg => {
+                    const msgDate = new Date(msg.created_at);
+                    
+                    if (!lastDate || !isSameDay(msgDate, lastDate)) {
+                        htmlContent.push(`
+                            <div class="date-separator">
+                                <span>${formatDateLabel(msgDate)}</span>
+                            </div>
+                        `);
+                        lastDate = msgDate;
+                    }
+                    htmlContent.push(renderMessage(msg));
+                });
+
+                if (newIds.length !== messageIds.length || JSON.stringify(newIds) !== JSON.stringify(messageIds)) {
+                    chatBox.innerHTML = htmlContent.join('');
+                    messageIds = newIds;
+                    if (shouldScroll || newIds.length > lastMessageCount) {
+                        scrollToBottom();
+                    }
+                }
+                lastMessageCount = newIds.length;
+            })
+            .catch(error => console.error('Erro ao buscar mensagens:', error));
+    }
+
+    setInterval(fetchMessages, 2000);
 
     // Funções auxiliares
     function escapeHtml(text) {
-    if (text === null || text === undefined) return '';
+        if (text === null || text === undefined) return '';
 
-    return String(text)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
-}
+        return String(text)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+    
     // 1. Inicializa o seletor
     const picker = new EmojiButton({
-        position: 'top-start', // Abre para cima para não cobrir o chat
+        position: 'top-start',
         rootElement: document.body,
         i18n: {
             search: 'Pesquisar emoji...',
@@ -1391,16 +1342,13 @@ setInterval(fetchMessages, 2000);
     });
 
     const trigger = document.querySelector('#emoji-trigger');
-    const input = document.querySelector('#chat-input'); // CERTIFIQUE-SE QUE SEU INPUT TEM ESSE ID
+    const input = document.querySelector('#chat-input');
 
-    // 2. O que acontece quando um emoji é escolhido
     picker.on('emoji', selection => {
-        // Insere o emoji no input sem apagar o que já foi escrito
         input.value += selection.emoji;
-        input.focus(); // Devolve o foco para o teclado
+        input.focus();
     });
 
-    // 3. A sua função que o clique no ícone chama
     function openEmojiPicker() {
         picker.togglePicker(trigger);
     }
@@ -1454,21 +1402,18 @@ setInterval(fetchMessages, 2000);
         }
     }
 
-    // Fechar modal com ESC
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             closeEditModal();
         }
     });
 
-    // Salvar com CTRL+ENTER no modal de edição
     editInput.addEventListener('keydown', (e) => {
         if (e.ctrlKey && e.key === 'Enter') {
             confirmEdit();
         }
     });
 
-    // Clicar fora do modal fecha
     editModal.addEventListener('click', (e) => {
         if (e.target === editModal) {
             closeEditModal();
@@ -1476,78 +1421,79 @@ setInterval(fetchMessages, 2000);
     });
 
     function renderUsersList(users) {
-    const previousScrollTop = usersList.scrollTop;
-    const previousSelectedId = selectedUserId;
+        const previousScrollTop = usersList.scrollTop;
+        const previousSelectedId = selectedUserId;
 
-    usersList.innerHTML = '';
+        usersList.innerHTML = '';
 
-    users.forEach(user => {
-        const isActive = Number(previousSelectedId) === Number(user.id);
+        users.forEach(user => {
+            const isActive = Number(previousSelectedId) === Number(user.id);
 
-        const item = document.createElement('div');
-        item.className = `user-item ${isActive ? 'active' : ''}`;
-        item.dataset.userId = user.id;
+            const item = document.createElement('div');
+            item.className = `user-item ${isActive ? 'active' : ''}`;
+            item.dataset.userId = user.id;
 
-        item.innerHTML = `
-            <div class="user-avatar">${escapeHtml((user.name || 'U').charAt(0).toUpperCase())}</div>
-            <div class="user-info">
-                <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
-                    <div class="user-name">${escapeHtml(user.name || 'Usuário')}</div>
-                    ${user.unread_count > 0 ? `<div class="user-badge">${user.unread_count}</div>` : ''}
+            item.innerHTML = `
+                <div class="user-avatar">${escapeHtml((user.name || 'U').charAt(0).toUpperCase())}</div>
+                <div class="user-info">
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+                        <div class="user-name">${escapeHtml(user.name || 'Usuário')}</div>
+                        ${user.unread_count > 0 ? `<div class="user-badge">${user.unread_count}</div>` : ''}
+                    </div>
+                    <div class="user-status" style="justify-content:space-between;">
+                        <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:140px;">
+                            ${escapeHtml(user.last_message_body || 'Sem mensagens')}
+                        </span>
+                        ${user.last_message_time ? `<span>${escapeHtml(user.last_message_time)}</span>` : ''}
+                    </div>
                 </div>
-                <div class="user-status" style="justify-content:space-between;">
-                    <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:140px;">
-                        ${escapeHtml(user.last_message_body || 'Sem mensagens')}
-                    </span>
-                    ${user.last_message_time ? `<span>${escapeHtml(user.last_message_time)}</span>` : ''}
-                </div>
-            </div>
-        `;
+            `;
 
-        item.onclick = () => selectUser(user.id, user.name, item);
-        usersList.appendChild(item);
-    });
+            item.onclick = () => selectUser(user.id, user.name, item);
+            usersList.appendChild(item);
+        });
 
-    usersList.scrollTop = previousScrollTop;
-}
-
-function reloadSidebar() {
-    fetch(`{{ route("chat.sidebarUsers") }}`)
-        .then(res => res.json())
-        .then(users => {
-            const newHash = buildSidebarHash(users);
-
-            if (newHash === lastSidebarHash) {
-                return;
-            }
-
-            lastSidebarHash = newHash;
-            renderUsersList(users);
-        })
-        .catch(error => console.error('Erro ao recarregar sidebar:', error));
-}
-
-function pauseSidebarRefresh(ms = 1500) {
-    sidebarPaused = true;
-    clearTimeout(sidebarPauseTimer);
-
-    sidebarPauseTimer = setTimeout(() => {
-        sidebarPaused = false;
-    }, ms);
-}
-
-fetchMessages();
-reloadSidebar();
-
-setInterval(() => {
-    fetchMessages();
-}, 2000);
-
-setInterval(() => {
-    if (!sidebarPaused) {
-        reloadSidebar();
+        usersList.scrollTop = previousScrollTop;
     }
-}, 5000);
+
+    function reloadSidebar() {
+        fetch(`{{ route("chat.sidebarUsers") }}`)
+            .then(res => res.json())
+            .then(users => {
+                const newHash = buildSidebarHash(users);
+
+                if (newHash === lastSidebarHash) {
+                    return;
+                }
+
+                lastSidebarHash = newHash;
+                renderUsersList(users);
+            })
+            .catch(error => console.error('Erro ao recarregar sidebar:', error));
+    }
+
+    function pauseSidebarRefresh(ms = 1500) {
+        sidebarPaused = true;
+        clearTimeout(sidebarPauseTimer);
+
+        sidebarPauseTimer = setTimeout(() => {
+            sidebarPaused = false;
+        }, ms);
+    }
+
+    fetchMessages();
+    reloadSidebar();
+
+    setInterval(() => {
+        fetchMessages();
+    }, 2000);
+
+    setInterval(() => {
+        if (!sidebarPaused) {
+            reloadSidebar();
+        }
+    }, 5000);
 
 </script>
+
 @endsection

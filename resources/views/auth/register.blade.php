@@ -50,4 +50,5 @@
         Já tem conta? <a href="{{ route('login') }}">Entrar</a>
     </div>
 </div>
+
 @endsection

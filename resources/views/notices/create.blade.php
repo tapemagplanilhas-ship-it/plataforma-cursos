@@ -142,4 +142,5 @@
         <button type="submit" class="form-submit">✅ Publicar Aviso</button>
     </form>
 </div>
+
 @endsection

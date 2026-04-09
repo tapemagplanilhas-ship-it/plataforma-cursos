@@ -246,4 +246,5 @@
         @endforeach
     </div>
 </div>
+
 @endsection

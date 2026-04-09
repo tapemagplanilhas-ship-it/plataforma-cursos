@@ -392,4 +392,5 @@ document.getElementById('deleteModal').addEventListener('click', function(event)
     }
 });
 </script>
+
 @endsection

@@ -3,12 +3,12 @@
 @section('content')
 <style>
     .page-header { margin-bottom: 30px; }
-    .page-header h1 { font-size: 1.8rem; color: #fff; }
+    .page-header h1 { font-size: 1.8rem; color: var(--text-primary); }
     .page-header h1 span { color: #e50000; }
 
     .btn-create { 
         background: #e50000; 
-        color: #fff; 
+        color: var(--text-primary);
         padding: 10px 20px; 
         border-radius: 6px; 
         text-decoration: none;
@@ -69,7 +69,7 @@
 
     .course-cover-title {
         font-size: 1.4rem;
-        color: #fff;
+        color: var(--text-primary);
         font-weight: 700;
         line-height: 1.4;
         z-index: 1;
@@ -125,7 +125,7 @@
 
     .btn-view {
         background: #e50000;
-        color: #fff;
+        color: var(--text-primary);
         text-decoration: none;
     }
 
@@ -137,7 +137,7 @@
         border: 1px solid #e50000;
     }
 
-    .btn-delete:hover { background: #e50000; color: #fff; }
+    .btn-delete:hover { background: #e50000; color: var(--text-primary); }
 
     .empty-state {
         text-align: center;

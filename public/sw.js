@@ -1,24 +1,23 @@
-// Service Worker básico para notificações
-self.addEventListener('install', () => {
-    console.log('Service Worker instalado');
+// public/sw.js
+
+self.addEventListener('install', (event) => {
+    console.log('[Service Worker] Instalado com sucesso!');
+    self.skipWaiting();
 });
 
-self.addEventListener('activate', () => {
-    console.log('Service Worker ativado');
+self.addEventListener('activate', (event) => {
+    console.log('[Service Worker] Ativado e pronto para operar!');
+    event.waitUntil(clients.claim());
 });
 
-// Lidar com clique em notificação
+// O que acontece quando o usuário clica na notificação?
 self.addEventListener('notificationclick', (event) => {
-    event.notification.close();
-    
-    // Abrir a URL do aviso ao clicar
-    if (event.notification.tag) {
-        clients.matchAll({ type: 'window' }).then(clientList => {
-            const client = clientList[0];
-            if (client) {
-                client.navigate('/notices/' + event.notification.tag);
-                client.focus();
-            }
-        });
+    event.notification.close(); // Fecha a notificação
+
+    // Se tivermos uma URL na notificação, abrimos ela
+    if (event.notification.data && event.notification.data.url) {
+        event.waitUntil(
+            clients.openWindow(event.notification.data.url)
+        );
     }
 });
