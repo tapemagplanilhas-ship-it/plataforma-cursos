@@ -307,7 +307,7 @@
         <a href="{{ route('notices.index') }}">Avisos</a>
         <a href="{{ route('chat.index') }}">Chat</a>
         
-        <!-- <div class="notification-wrapper">
+        <div class="notification-wrapper">
             <button type="button" class="notification-bell" id="notificationBell">
                 🔔
                 <span class="notification-badge" id="notificationBadge">
@@ -327,7 +327,7 @@
                     <div class="notification-empty">Carregando...</div>
                 </div>
             </div>
-        </div> -->
+        </div>
 
         @if(auth()->user()->isAdmin())
             <a href="{{ route('admin.dashboard') }}">⚙️ Admin</a>
