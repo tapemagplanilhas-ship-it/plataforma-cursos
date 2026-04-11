@@ -20,6 +20,7 @@
             --border: #333333;
             --border-light: #2a2a2a;
             --dropdown-bg: linear-gradient(135deg, #151515 0%, #1f1f1f 100%);
+            --dropdown-solid: #1a1a1a;
         }
 
         [data-theme="light"] {
@@ -34,15 +35,14 @@
             --border: #dee2e6;
             --border-light: #e9ecef;
             --dropdown-bg: #ffffff;
+            --dropdown-solid: #ffffff;
         }
 
         /* === CONTROLE DINÂMICO DA LOGO === */
-/* No tema escuro (padrão), a logo fica normal (branca/clara) */
         nav .logo img {
             transition: filter 0.3s ease;
         }
 
-/* No tema claro, transformamos a logo em PRETA */
         [data-theme="light"] nav .logo img {
             filter: brightness(0);
         }
@@ -87,34 +87,10 @@
             margin-left: 20px;
             font-size: 0.9rem;
             transition: color 0.2s;
+            font-weight: 600;
         }
 
         nav .nav-links a:hover { color: var(--accent); }
-
-        nav .nav-links span {
-            color: var(--text-muted);
-            font-size: 0.8rem;
-            margin-left: 20px;
-        }
-
-        nav .nav-links form { display: inline; }
-
-        nav .nav-links button {
-            background: none;
-            border: 1px solid var(--accent);
-            color: var(--accent);
-            padding: 5px 14px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.85rem;
-            margin-left: 20px;
-            transition: all 0.2s;
-        }
-
-        nav .nav-links button:hover {
-            background: var(--accent);
-            color: #fff; /* Botão preenchido sempre tem texto branco */
-        }
 
         /* CONTAINER */
         .container {
@@ -149,6 +125,7 @@
             font-size: 0.75rem;
             font-weight: 600;
             text-transform: uppercase;
+            margin-left: 10px;
         }
 
         .badge-admin     { background: var(--accent); color: #fff; }
@@ -285,6 +262,209 @@
             text-align: center;
             color: var(--text-muted);
         }
+
+        /* === INDICADOR DE STATUS DE CONEXÃO === */
+        .connection-status-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-left: 20px;
+            padding: 4px 10px;
+            background: var(--bg-tertiary);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #ffcc00;
+            box-shadow: 0 0 8px #ffcc00;
+            transition: all 0.3s ease;
+        }
+
+        .status-online .status-dot {
+            background-color: #00cc66;
+            box-shadow: 0 0 8px rgba(0, 204, 102, 0.6);
+        }
+        .status-online .status-text { color: #00cc66; }
+
+        .status-offline .status-dot {
+            background-color: #e50000;
+            box-shadow: 0 0 8px rgba(229, 0, 0, 0.6);
+            animation: pulse-error 1.5s infinite;
+        }
+        .status-offline .status-text { color: #e50000; }
+
+        @keyframes pulse-error {
+            0% { box-shadow: 0 0 0 0 rgba(229, 0, 0, 0.4); }
+            70% { box-shadow: 0 0 0 6px rgba(229, 0, 0, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(229, 0, 0, 0); }
+        }
+
+        /* ==========================================================================
+           NOVO: DROPDOWN DE PERFIL (ESTILO BALÃO)
+           ========================================================================== */
+        .profile-menu-wrapper {
+            position: relative;
+            display: inline-block;
+            margin-left: 20px;
+        }
+
+        /* O Avatar Redondo */
+        .profile-trigger {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 10px rgba(229, 0, 0, 0.2);
+        }
+
+        .profile-trigger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(229, 0, 0, 0.3);
+        }
+
+        /* O Balão Dropdown */
+        .profile-dropdown-content {
+            position: absolute;
+            top: 55px;
+            right: 0;
+            width: 220px;
+            background: var(--dropdown-solid);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            display: none; /* Escondido por padrão */
+            flex-direction: column;
+            z-index: 1000;
+            padding: 8px;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        /* Animação de entrada */
+        .profile-dropdown-content.show {
+            display: flex;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* A Setinha do Balão (Triângulo) */
+        .profile-dropdown-content::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            right: 15px; /* Alinhado com o avatar */
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 8px solid var(--border);
+        }
+
+        /* Triângulo interno para cobrir a borda */
+        .profile-dropdown-content::after {
+            content: '';
+            position: absolute;
+            top: -7px;
+            right: 15px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 8px solid var(--dropdown-solid);
+        }
+
+        /* Informações do Usuário no Topo do Balão */
+        .profile-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-light);
+            margin-bottom: 8px;
+        }
+
+        .profile-name {
+            font-weight: 700;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            margin-bottom: 4px;
+        }
+
+        /* Itens do Menu (Admin, Tema) */
+        .profile-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 16px;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border-radius: 8px;
+            transition: background 0.2s ease;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            width: 100%;
+            text-align: left;
+        }
+
+        .profile-item:hover {
+            background: var(--bg-tertiary);
+            color: var(--accent);
+        }
+
+        /* Ícones minimalistas (SVG) */
+        .profile-icon {
+            width: 18px;
+            height: 18px;
+            margin-right: 12px;
+            fill: currentColor;
+            opacity: 0.8;
+        }
+
+        /* Botão Sair (Vermelho e Arredondado) */
+        .profile-logout-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 8px;
+            padding: 10px;
+            background: var(--accent);
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.9rem;
+            border-radius: 999px; /* Totalmente arredondado */
+            transition: all 0.2s ease;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .profile-logout-btn:hover {
+            background: var(--accent-hover);
+            transform: scale(1.02);
+        }
+
+        .profile-logout-btn .profile-icon {
+            fill: #ffffff;
+            margin-right: 8px;
+        }
     </style>
 </head>
 <body>
@@ -328,23 +508,54 @@
                 </div>
             </div>
         </div>
-
-        @if(auth()->user()->isAdmin())
-            <a href="{{ route('admin.dashboard') }}">⚙️ Admin</a>
-        @endif
         
-        <span>{{ auth()->user()->name }}</span>
-        <span class="badge badge-{{ auth()->user()->role }}">{{ auth()->user()->role }}</span>
-        
-        <!-- Botão de Tema -->
-        <button id="theme-toggle" title="Alternar tema" style="margin-left: 15px; border: none; background: transparent; font-size: 1.2rem; cursor: pointer;">
-            🌓
-        </button>
+        <!-- INDICADOR DE STATUS DE CONEXÃO -->
+        <div class="connection-status-wrapper" id="connectionStatus" title="Status da conexão com o servidor">
+            <div class="status-dot"></div>
+            <span class="status-text" id="connectionText">Conectando...</span>
+        </div>
 
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
-            <button type="submit">Sair</button>
-        </form>
+        <!-- ==========================================
+             NOVO: MENU DROPDOWN DE PERFIL (BALÃO)
+             ========================================== -->
+        <div class="profile-menu-wrapper">
+            <!-- Avatar Gatilho (Primeira letra do nome) -->
+            <div class="profile-trigger" id="profileTrigger">
+                {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+            </div>
+
+            <!-- Conteúdo do Balão -->
+            <div class="profile-dropdown-content" id="profileDropdown">
+                <div class="profile-header">
+                    <div class="profile-name">{{ auth()->user()->name }}</div>
+                    <span class="badge badge-{{ auth()->user()->role }}" style="margin-left: 0;">{{ auth()->user()->role }}</span>
+                </div>
+
+                @if(auth()->user()->isAdmin())
+                    <a href="{{ route('admin.dashboard') }}" class="profile-item">
+                        <!-- Ícone de Engrenagem (Admin) -->
+                        <svg class="profile-icon" viewBox="0 0 24 24"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg>
+                        Admin
+                    </a>
+                @endif
+
+                <button id="theme-toggle" class="profile-item">
+                    <!-- Ícone de Sol/Lua (Tema) -->
+                    <svg class="profile-icon" viewBox="0 0 24 24"><path d="M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5S14.76,7,12,7L12,7z M2,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0 c-0.55,0-1,0.45-1,1S1.45,13,2,13z M20,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S19.45,13,20,13z M11,2v2 c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S11,1.45,11,2z M11,20v2c0,0.55,0.45,1,1,1s1-0.45,1-1v-2c0-0.55-0.45-1-1-1 C11.45,19,11,19.45,11,20z M5.99,4.58c-0.39-0.39-1.03-0.39-1.41,0c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06 c0.39,0.39,1.03,0.39,1.41,0s0.39-1.03,0-1.41L5.99,4.58z M18.36,16.95c-0.39-0.39-1.03-0.39-1.41,0c-0.39,0.39-0.39,1.03,0,1.41 l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0c0.39-0.39,0.39-1.03,0-1.41L18.36,16.95z M19.42,5.99c0.39-0.39,0.39-1.03,0-1.41 c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06c-0.39,0.39-0.39,1.03,0,1.41s1.03,0.39,1.41,0L19.42,5.99z M7.05,18.36 c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06c-0.39,0.39-0.39,1.03,0,1.41s1.03,0.39,1.41,0L7.05,18.36z"/></svg>
+                    Tema
+                </button>
+
+                <form method="POST" action="{{ route('logout') }}" style="margin: 0;">
+                    @csrf
+                    <button type="submit" class="profile-logout-btn">
+                        <!-- Ícone de Sair -->
+                        <svg class="profile-icon" viewBox="0 0 24 24"><path d="M17,7l-1.41,1.41L18.17,11H8v2h10.17l-2.58,2.58L17,17l5-5L17,7z M4,5h8V3H4C2.9,3,2,3.9,2,5v14c0,1.1,0.9,2,2,2h8v-2H4V5z"/></svg>
+                        Sair
+                    </button>
+                </form>
+            </div>
+        </div>
+
     </div>
     @endauth
 </nav>
@@ -481,10 +692,30 @@ setTimeout(() => { closeAlert(); }, 8000);
 @endif
 
 @auth
-<!-- SCRIPT UNIFICADO: NOTIFICAÇÕES + TEMA INTELIGENTE -->
+<!-- SCRIPT UNIFICADO: NOTIFICAÇÕES + TEMA INTELIGENTE + STATUS DE CONEXÃO + DROPDOWN PERFIL -->
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     
+    // ==========================================
+    // 0. LÓGICA DO DROPDOWN DE PERFIL (NOVO)
+    // ==========================================
+    const profileTrigger = document.getElementById('profileTrigger');
+    const profileDropdown = document.getElementById('profileDropdown');
+
+    if (profileTrigger && profileDropdown) {
+        profileTrigger.addEventListener('click', function(e) {
+            e.stopPropagation();
+            profileDropdown.classList.toggle('show');
+        });
+
+        // Fecha ao clicar fora
+        document.addEventListener('click', function(e) {
+            if (!profileDropdown.contains(e.target) && !profileTrigger.contains(e.target)) {
+                profileDropdown.classList.remove('show');
+            }
+        });
+    }
+
     // ==========================================
     // 1. MOTOR DE TEMA (CLARO/ESCURO)
     // ==========================================
@@ -539,10 +770,33 @@ document.addEventListener('DOMContentLoaded', function () {
         } catch (error) { console.error('Erro ao salvar tema no banco:', error); }
     }
 
-    initializeTheme(); // Inicia o tema
+    initializeTheme();
 
     // ==========================================
-    // 2. MOTOR DE NOTIFICAÇÕES (DROPDOWN + PUSH)
+    // 2. CONTROLE DE STATUS DE CONEXÃO
+    // ==========================================
+    const statusWrapper = document.getElementById('connectionStatus');
+    const statusText = document.getElementById('connectionText');
+    let connectionFails = 0;
+
+    function setConnectionStatus(isOnline) {
+        if (!statusWrapper) return;
+        
+        if (isOnline) {
+            connectionFails = 0;
+            statusWrapper.className = 'connection-status-wrapper status-online';
+            statusText.textContent = 'Online';
+        } else {
+            connectionFails++;
+            if (connectionFails >= 2) {
+                statusWrapper.className = 'connection-status-wrapper status-offline';
+                statusText.textContent = 'Offline';
+            }
+        }
+    }
+
+    // ==========================================
+    // 3. MOTOR DE NOTIFICAÇÕES (DROPDOWN + PUSH)
     // ==========================================
     const bell = document.getElementById('notificationBell');
     const dropdown = document.getElementById('notificationDropdown');
@@ -550,7 +804,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const list = document.getElementById('notificationList');
     const markAllBtn = document.getElementById('markAllNotificationsRead');
 
-    // Funções de UI do Dropdown
     function escapeHtml(text) { return String(text || '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[m]); }
     function formatDate(dateString) { const d = new Date(dateString); return isNaN(d) ? '' : d.toLocaleString('pt-BR'); }
     function updateBadge(count) { badge.textContent = count || 0; badge.style.display = count > 0 ? 'flex' : 'none'; }
@@ -570,7 +823,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Funções de API do Dropdown
     async function fetchDropdownNotifications() {
         try {
             const res = await fetch(`{{ route('notifications.fetch') }}`, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
@@ -578,8 +830,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 const data = await res.json();
                 updateBadge(data.unread_count || 0);
                 renderNotifications(data.notifications || []);
+                setConnectionStatus(true);
+            } else {
+                setConnectionStatus(false);
             }
-        } catch (e) { console.error(e); renderEmpty('Erro ao carregar.'); }
+        } catch (e) { 
+            console.error(e); 
+            renderEmpty('Erro ao carregar.'); 
+            setConnectionStatus(false);
+        }
     }
 
     async function markAsRead(id) {
@@ -596,13 +855,12 @@ document.addEventListener('DOMContentLoaded', function () {
         } catch (e) { console.error(e); }
     }
 
-    // Eventos do Dropdown
     if(bell) bell.addEventListener('click', e => { e.stopPropagation(); dropdown.classList.toggle('show'); });
     if(markAllBtn) markAllBtn.addEventListener('click', e => { e.preventDefault(); markAllAsRead(); });
     document.addEventListener('click', e => { if (dropdown && !dropdown.contains(e.target) && !bell.contains(e.target)) dropdown.classList.remove('show'); });
 
     // ==========================================
-    // 3. WEB PUSH NOTIFICATIONS (SISTEMA OPERACIONAL)
+    // 4. WEB PUSH NOTIFICATIONS (SISTEMA OPERACIONAL)
     // ==========================================
     function requestNotificationPermission() {
         if ('Notification' in window && Notification.permission === 'default') {
@@ -638,19 +896,22 @@ document.addEventListener('DOMContentLoaded', function () {
                             });
                         });
                     });
-                    // Atualiza o dropdown junto com o push!
                     fetchDropdownNotifications(); 
                 }
+                setConnectionStatus(true);
+            } else {
+                setConnectionStatus(false);
             }
-        } catch (e) { console.error(e); }
+        } catch (e) { 
+            console.error(e);
+            setConnectionStatus(false);
+        }
     }
 
-    // Inicializa tudo
     fetchDropdownNotifications();
     requestNotificationPermission();
     registerServiceWorker();
 
-    // UM ÚNICO INTERVALO PARA TUDO (Economiza CPU e Servidor)
     setInterval(() => {
         fetchDropdownNotifications();
         checkPushNotifications();

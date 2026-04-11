@@ -88,7 +88,7 @@ class MessageController extends Controller
         Message::create([
             'user_id' => auth()->id(),
             'recipient_id' => $request->recipient_id ?: null,
-            'body' => $request->body,
+            'body' => $request->body ?? '', // 👈 A MÁGICA AQUI: Se for null, força a ser vazio ('')
             'media_path' => $mediaPath,
             'media_type' => $mediaType,
             'read_at' => null,

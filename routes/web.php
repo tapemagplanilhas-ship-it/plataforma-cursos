@@ -43,23 +43,26 @@ Route::middleware('auth')->get('/check-notifications', function () {
     // ==========================================
     // 2. VERIFICAÇÃO DE NOVAS MENSAGENS NO CHAT
     // ==========================================
+        // ==========================================
+    // 2. VERIFICAÇÃO DE NOVAS MENSAGENS NO CHAT
+    // ==========================================
     $newMessages = Message::where('recipient_id', $user->id)
-        ->where('is_read', false)
+        ->whereNull('read_at') // 👈 CORREÇÃO 1: O seu banco usa 'read_at' nulo, e não 'is_read'
         ->where('notified', false)
-        ->with('sender') // Traz os dados de quem enviou
+        ->with('user') // 👈 CORREÇÃO 2: O seu relacionamento se chama 'user', e não 'sender'
         ->get();
 
     foreach ($newMessages as $msg) {
-        $senderName = $msg->sender ? $msg->sender->name : 'Alguém da equipe';
+        // Pega o nome do usuário corretamente
+        $senderName = $msg->user ? $msg->user->name : 'Alguém da equipe'; 
         
-        // Se for arquivo/mídia, avisa. Se for texto, mostra um preview de 40 caracteres.
+        // Preview da mensagem
         $bodyPreview = $msg->body ? Str::limit($msg->body, 40) : 'Enviou um arquivo 📎';
         
         $notifications->push([
             'id' => 'msg_' . $msg->id,
             'title' => "💬 Nova mensagem de {$senderName}",
             'body' => $bodyPreview,
-            // 💡 Redireciona direto para a tela de chat
             'url' => url('/chat') 
         ]);
     }
