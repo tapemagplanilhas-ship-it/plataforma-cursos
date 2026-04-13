@@ -22,10 +22,11 @@ class MessageController extends Controller
         return view('chat.index', compact('messages', 'users'));
     }
 
-    public function fetch(Request $request)
+        public function fetch(Request $request)
     {
         $selectedUserId = $request->selected_user_id;
-        $authId = Auth::id();
+        $authId = \Illuminate\Support\Facades\Auth::id();
+        $typingUser = null;
 
         if ($selectedUserId) {
             $messages = Message::with('user')
@@ -40,21 +41,33 @@ class MessageController extends Controller
                 ->orderBy('created_at', 'asc')
                 ->get();
 
-            // marca como lidas as mensagens que o outro enviou para mim
             Message::where('user_id', $selectedUserId)
                 ->where('recipient_id', $authId)
                 ->whereNull('read_at')
-                ->update([
-                    'read_at' => now()
-                ]);
+                ->update(['read_at' => now()]);
+
+            // 🚨 NOVO: Verifica no Cache se o outro usuário está digitando para você
+            $typingUser = \Illuminate\Support\Facades\Cache::get("typing_{$selectedUserId}_to_{$authId}");
         } else {
             $messages = Message::with('user')
                 ->whereNull('recipient_id')
                 ->orderBy('created_at', 'asc')
                 ->get();
+            
+            // 🚨 NOVO: Verifica no Cache se alguém está digitando no chat geral
+            $typingUser = \Illuminate\Support\Facades\Cache::get("typing_to_all");
+            
+            // Se for você mesmo digitando, não mostra a caixinha para você
+            if ($typingUser === auth()->user()->name) {
+                $typingUser = null;
+            }
         }
 
-        return response()->json($messages);
+        // Retorna as mensagens E o status de quem está digitando
+        return response()->json([
+            'messages' => $messages,
+            'typing_user' => $typingUser
+        ]);
     }
 
     public function store(Request $request)
@@ -161,6 +174,26 @@ class MessageController extends Controller
         }
 
         $message->delete();
+
+        return response()->json(['success' => true]);
+    }
+
+        public function typing(Request $request)
+    {
+        $userId = auth()->id();
+        $recipientId = $request->recipient_id;
+        $isTyping = $request->is_typing === 'true';
+
+        // Cria uma chave única no Cache
+        $cacheKey = $recipientId ? "typing_{$userId}_to_{$recipientId}" : "typing_to_all";
+
+        if ($isTyping) {
+            // Guarda o nome de quem tá digitando no Cache por 3 segundos
+            \Illuminate\Support\Facades\Cache::put($cacheKey, auth()->user()->name, now()->addSeconds(3));
+        } else {
+            // Apaga do Cache se parar de digitar
+            \Illuminate\Support\Facades\Cache::forget($cacheKey);
+        }
 
         return response()->json(['success' => true]);
     }

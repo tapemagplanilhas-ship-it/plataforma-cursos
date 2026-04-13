@@ -40,10 +40,19 @@ Route::middleware('auth')->get('/check-notifications', function () {
         Notice::whereIn('id', $expiredNotices->pluck('id'))->update(['notified' => true]);
     }
 
+
+    // Chat
+    Route::get('/chat', [MessageController::class, 'index'])->name('chat.index');
+    Route::post('/chat', [MessageController::class, 'store'])->name('chat.store');
+    Route::get('/chat/fetch', [MessageController::class, 'fetch'])->name('chat.fetch');
+    
+    // 🚨 ROTA NOVA AQUI (Antes do {message}) 🚨
+    Route::post('/chat/typing', [MessageController::class, 'typing'])->name('chat.typing');
+    
+    Route::patch('/chat/{message}', [MessageController::class, 'update'])->name('chat.update');
+    Route::delete('/chat/{message}', [MessageController::class, 'destroy'])->name('chat.destroy');
+
     // ==========================================
-    // 2. VERIFICAÇÃO DE NOVAS MENSAGENS NO CHAT
-    // ==========================================
-        // ==========================================
     // 2. VERIFICAÇÃO DE NOVAS MENSAGENS NO CHAT
     // ==========================================
     $newMessages = Message::where('recipient_id', $user->id)

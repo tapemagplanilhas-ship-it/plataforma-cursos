@@ -240,6 +240,7 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
     flex-direction: column;
     min-height: 0;
     overflow: hidden;
+    position: relative;
 }
 
 #chat-box {
@@ -314,15 +315,25 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
     border-bottom-left-radius: var(--radius-sm);
 }
 
-/* Ajuste para imagens e figurinhas ficarem bonitas */
 .msg-media { max-width: 320px; border-radius: var(--radius-lg); overflow: hidden; }
 .msg-media img, .msg-media video { width: 100%; display: block; height: auto; }
 
-/* 🚨 AQUI ESTÁ A MÁGICA DO TAMANHO DA FIGURINHA 🚨 */
+/* 🚨 AQUI ESTÁ A MÁGICA DO TAMANHO DA FIGURINHA (WPP STYLE) 🚨 */
+.msg-media.sticker {
+    background: transparent !important; /* Sem fundo */
+    border: none !important; /* Sem borda */
+    border-radius: 0 !important; /* Sem arredondamento do container */
+    max-width: 120px !important; /* Tamanho ajustado igual WPP */
+    overflow: visible !important; /* Permite a sombra vazar */
+    margin: 4px 0;
+}
+
 .msg-media.sticker img { 
-    background: transparent; 
-    max-width: 120px; /* Bem menor e mais charmosa */
-    border-radius: 0; /* Figurinhas não precisam de borda arredondada */
+    background: transparent !important;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    filter: drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.2)); /* Sombra flutuante elegante */
 } 
 
 .msg-file {
@@ -413,6 +424,49 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
     height: 1px;
     background-color: var(--border-default);
     margin: 0 var(--sp-md);
+}
+
+/* TYPING INDICATOR (WPP STYLE) */
+.typing-indicator-container {
+    display: none; 
+    align-self: flex-start;
+    margin-bottom: var(--sp-md);
+    animation: slideIn 0.3s ease forwards;
+}
+
+.typing-bubble {
+    background-color: var(--color-bg-light);
+    border: 1px solid var(--border-default);
+    border-radius: 18px;
+    border-bottom-left-radius: 4px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.typing-dot {
+    width: 6px;
+    height: 6px;
+    background-color: var(--color-text-muted);
+    border-radius: 50%;
+    animation: typingBounce 1.4s infinite ease-in-out both;
+}
+
+.typing-dot:nth-child(1) { animation-delay: -0.32s; }
+.typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes typingBounce {
+    0%, 80%, 100% { transform: translateY(0); opacity: 0.6; }
+    40% { transform: translateY(-4px); opacity: 1; background-color: var(--color-primary); }
+}
+
+.typing-name {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    margin-left: 8px;
+    font-weight: 600;
 }
 
 .chat-input-area {
@@ -514,7 +568,6 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
     flex-shrink: 0;
 }
 
-/* BOTÃO ENVIAR OTIMIZADO */
 .chat-input-area button[type="submit"] {
     padding: var(--sp-md) var(--sp-xxl);
     background: #e50000 !important; 
@@ -545,7 +598,6 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
     box-shadow: 0 2px 5px rgba(229, 0, 0, 0.3);
 }
 
-/* MODAL DE EDIÇÃO */
 .edit-modal {
     display: none;
     position: fixed;
@@ -640,7 +692,6 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
 .edit-modal-btn-cancel { background-color: var(--color-primary-light); color: var(--color-primary); border: 1px solid rgba(229, 0, 0, 0.2); }
 .edit-modal-btn-cancel:hover { background-color: rgba(229, 0, 0, 0.2); }
 
-/* ESTILOS DO EMOJI MART CONTAINER */
 #emoji-picker-container {
     position: absolute;
     bottom: 80px; 
@@ -652,11 +703,10 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
     overflow: hidden;
 }
 
-/* ESTILOS DO STICKER PICKER */
 #sticker-picker-container {
     position: absolute;
     bottom: 80px; 
-    left: 60px; /* Um pouco mais para o lado do emoji */
+    left: 60px; 
     z-index: 1000;
     display: none;
     background: var(--color-bg-light);
@@ -707,7 +757,6 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
     object-fit: contain;
 }
 
-/* 🚨 NOVO: Botão de Upload de Figurinha 🚨 */
 .sticker-upload-btn {
     background: rgba(229, 0, 0, 0.1);
     border: 2px dashed var(--color-primary);
@@ -729,7 +778,6 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
     transform: scale(1.05);
 }
 
-/* Loader da Figurinha */
 .sticker-loading {
     position: absolute;
     top: 50%;
@@ -844,7 +892,6 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
                                     @endif
                                     @if($msg->media_path)
                                         @if(str_contains($msg->media_type, 'image'))
-                                            <!-- AQUI O LARAVEL APLICA A CLASSE STICKER SE O NOME COMEÇAR COM STICKER_ -->
                                             <div class="msg-media {{ str_contains($msg->media_path, 'sticker_') ? 'sticker' : '' }}">
                                                 <img src="{{ asset('storage/' . $msg->media_path) }}" alt="Imagem">
                                             </div>
@@ -876,6 +923,17 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
                         </div>
                     @endforeach
                 @endif
+
+                <!-- TYPING INDICATOR -->
+                <div class="typing-indicator-container" id="typing-indicator">
+                    <div class="typing-bubble">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <span class="typing-name" id="typing-user-name">Alguém está digitando...</span>
+                    </div>
+                </div>
+
             </div>
         </div>
         
@@ -890,11 +948,8 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
             <div id="sticker-picker-container">
                 <div class="sticker-header">🏷️ Figurinhas da Tapemag</div>
                 <div class="sticker-grid" id="sticker-grid">
-                    <!-- 🚨 NOVO: Botão de Upload Customizado 🚨 -->
                     <div class="sticker-upload-btn" id="custom-sticker-btn" title="Enviar sua própria figurinha">+</div>
                     <input type="file" id="custom-sticker-input" style="display: none;" accept="image/*">
-                    
-                    <!-- As figurinhas fixas serão injetadas aqui pelo JS -->
                 </div>
                 <div class="sticker-loading" id="sticker-loading">Enviando... 🚀</div>
             </div>
@@ -960,6 +1015,7 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
     const usersList = document.getElementById('users-list');
     const selectedUserSpan = document.getElementById('selected-user');
     const currentId = {{ auth()->id() }};
+    const currentUserName = "{{ auth()->user()->name }}";
     
     let selectedFile = null;
     let editingMessageId = null;
@@ -969,6 +1025,55 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
     let sidebarPaused = false;
     let sidebarPauseTimer = null;
     let lastSidebarHash = '';
+
+    // 
+    // LÓGICA DO TYPING INDICATOR
+    // 
+    const typingIndicator = document.getElementById('typing-indicator');
+    const typingUserName = document.getElementById('typing-user-name');
+    let typingTimeout = null;
+    let isTyping = false;
+
+    chatInput.addEventListener('input', () => {
+        charCount.textContent = chatInput.value.length + '/500';
+
+        if (!isTyping) {
+            isTyping = true;
+            notifyTypingStatus(true);
+        }
+
+        clearTimeout(typingTimeout);
+        
+        typingTimeout = setTimeout(() => {
+            isTyping = false;
+            notifyTypingStatus(false);
+        }, 2500);
+    });
+
+    function notifyTypingStatus(status) {
+        const formData = new FormData();
+        formData.append('is_typing', status);
+        formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+        if (selectedUserId !== null) {
+            formData.append('recipient_id', selectedUserId);
+        }
+
+        fetch('/chat/typing', {
+            method: 'POST',
+            body: formData
+        }).catch(e => console.log('Typing route not ready yet'));
+    }
+
+    function showTypingIndicator(userName) {
+        typingUserName.textContent = `${userName} está digitando...`;
+        typingIndicator.style.display = 'flex';
+        scrollToBottom();
+    }
+
+    function hideTypingIndicator() {
+        typingIndicator.style.display = 'none';
+    }
+
 
     // 
     // INTEGRAÇÃO EMOJI MART
@@ -998,11 +1103,10 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
         
         emojiTrigger.addEventListener('click', (e) => {
             e.stopPropagation();
-            stickerContainer.style.display = 'none'; // Fecha o outro
+            stickerContainer.style.display = 'none'; 
             pickerContainer.style.display = pickerContainer.style.display === 'block' ? 'none' : 'block';
         });
 
-        // Fecha se clicar fora
         document.addEventListener('click', (e) => {
             if (!pickerContainer.contains(e.target) && e.target !== emojiTrigger) {
                 pickerContainer.style.display = 'none';
@@ -1030,7 +1134,6 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
         const stickerGrid = document.getElementById('sticker-grid');
         const loadingIndicator = document.getElementById('sticker-loading');
         
-        // 🚨 LÓGICA DO UPLOAD CUSTOMIZADO (O BOTÃO [+]) 🚨
         const customStickerBtn = document.getElementById('custom-sticker-btn');
         const customStickerInput = document.getElementById('custom-sticker-input');
 
@@ -1042,27 +1145,23 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
             const file = e.target.files[0];
             if (!file) return;
 
-            // Mostra o loading
             stickerGrid.style.opacity = '0.3';
             loadingIndicator.style.display = 'block';
 
             try {
-                // Renomeia o arquivo para forçar o Laravel a reconhecer como figurinha
                 const fileExtension = file.name.split('.').pop();
                 const newFileName = 'sticker_custom_' + Date.now() + '.' + fileExtension;
                 const renamedFile = new File([file], newFileName, { type: file.type });
 
-                // Prepara o envio invisível
                 const formData = new FormData();
                 formData.append('media', renamedFile);
-                formData.append('body', ''); // Evita o erro 1048
+                formData.append('body', ''); 
                 formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
                 
                 if (selectedUserId !== null) {
                     formData.append('recipient_id', selectedUserId);
                 }
 
-                // Envia direto para o chat
                 const uploadResponse = await fetch('{{ route("chat.store") }}', {
                     method: 'POST',
                     body: formData
@@ -1070,8 +1169,8 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
 
                 if (uploadResponse.ok) {
                     stickerContainer.style.display = 'none';
-                    customStickerInput.value = ''; // Limpa o input
-                    fetchMessages(); // Atualiza a tela
+                    customStickerInput.value = ''; 
+                    fetchMessages(); 
                 } else {
                     alert('Erro ao enviar sua figurinha.');
                 }
@@ -1083,7 +1182,6 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
             }
         });
 
-        // Lógica das figurinhas fixas (se você quiser manter algumas)
         const stickerUrls = [
             '/images/stickers/1.jpg',
         ];
@@ -1140,7 +1238,6 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
             stickerGrid.appendChild(div);
         });
 
-        // Lógica de Abrir/Fechar
         stickerTrigger.addEventListener('click', (e) => {
             e.stopPropagation();
             emojiContainer.style.display = 'none'; 
@@ -1155,7 +1252,7 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
     });
 
     // 
-    // LÓGICA DO CHAT (MANTIDA INTACTA)
+    // LÓGICA DO CHAT 
     // 
 
     usersList.addEventListener('scroll', () => pauseSidebarRefresh(1800));
@@ -1181,10 +1278,6 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
     }
 
     scrollToBottom();
-
-    chatInput.addEventListener('input', () => {
-        charCount.textContent = chatInput.value.length + '/500';
-    });
 
     function selectUser(userId, userName, element) {
         selectedUserId = userId;
@@ -1221,6 +1314,10 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
 
         const body = chatInput.value.trim();
         if (!body && !selectedFile) return;
+
+        isTyping = false;
+        notifyTypingStatus(false);
+        clearTimeout(typingTimeout);
 
         const formData = new FormData();
         formData.append('body', body);
@@ -1281,7 +1378,6 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
         const isVideo = mediaType.includes('video');
         const isFile = mediaPath && !isImage && !isVideo;
         
-        // Verifica se é uma figurinha (Sticker) pelo nome do arquivo gerado no JS
         const isSticker = mediaPath.includes('sticker_');
 
         let mediaHtml = '';
@@ -1373,9 +1469,16 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
 
         fetch(url)
             .then(res => res.json())
-            .then(msgs => {
-                const filteredMsgs = msgs; 
-                
+            .then(data => {
+                const filteredMsgs = data.messages || data; 
+                const typingUser = data.typing_user;
+
+                if (typingUser) {
+                    showTypingIndicator(typingUser);
+                } else {
+                    hideTypingIndicator();
+                }
+
                 const newIds = filteredMsgs.map(m => m.id);
                 const shouldScroll = lastMessageCount < filteredMsgs.length || chatBox.scrollTop >= chatBox.scrollHeight - chatBox.clientHeight - 50;
 
@@ -1412,7 +1515,14 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
                 });
 
                 if (newIds.length !== messageIds.length || JSON.stringify(newIds) !== JSON.stringify(messageIds)) {
+                    const currentTyping = document.getElementById('typing-indicator');
+                    
                     chatBox.innerHTML = htmlContent.join('');
+                    
+                    if (currentTyping) {
+                        chatBox.appendChild(currentTyping);
+                    }
+                    
                     messageIds = newIds;
                     if (shouldScroll || newIds.length > lastMessageCount) {
                         scrollToBottom();
@@ -1542,7 +1652,7 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
                 const newHash = buildSidebarHash(users);
 
                 if (newHash === lastSidebarHash) {
-                    return;
+                                      return;
                 }
 
                 lastSidebarHash = newHash;
@@ -1560,13 +1670,16 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
         }, ms);
     }
 
+    // 🚀 INICIALIZAÇÃO DO CHAT 🚀
     fetchMessages();
     reloadSidebar();
 
+    // 🔄 POLLING DE MENSAGENS (A cada 2 segundos)
     setInterval(() => {
         fetchMessages();
     }, 2000);
 
+    // 🔄 POLLING DA SIDEBAR (A cada 5 segundos)
     setInterval(() => {
         if (!sidebarPaused) {
             reloadSidebar();
