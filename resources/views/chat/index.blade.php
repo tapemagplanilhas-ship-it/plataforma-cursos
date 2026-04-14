@@ -170,7 +170,7 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
     width: 40px;
     height: 40px;
     border-radius: var(--radius-full);
-    background: var(--color-primary-gradient);
+    background: gray;
     display: flex;
     align-items: center;
     justify-content: center;
