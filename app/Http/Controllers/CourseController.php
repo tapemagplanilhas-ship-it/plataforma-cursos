@@ -15,19 +15,17 @@ class CourseController extends Controller
      */
     public function index()
     {
-        $user = \Illuminate\Support\Facades\Auth::user();
-
-        // 1. Inicia a query base (Cursos ativos, com o criador, do mais novo pro mais velho)
+        $user = Auth::user();
         $query = Course::with('creator')->active()->latest();
 
-        // 2. A Trava de Segurança (Stop Loss)
-        // Se o usuário NÃO for admin, aplicamos o filtro de cargo
-        if (!$user->isAdmin()) {
-            $query->whereIn('allowed_role', ['todos', $user->role]);
+        if ($user->isAdmin()) {
+            // Admin vê TUDO agrupado por setor (allowed_role)
+            // Usamos ->get() porque groupBy de coleção não funciona bem com paginação direta
+            $courses = $query->get()->groupBy('allowed_role');
+        } else {
+            // Usuário comum vê apenas o dele e o 'todos', com paginação
+            $courses = $query->whereIn('allowed_role', ['todos', $user->role])->paginate(12);
         }
-
-        // 3. Executa a query e pagina
-        $courses = $query->paginate(12);
 
         return view('courses.index', compact('courses'));
     }
@@ -164,4 +162,5 @@ class CourseController extends Controller
             return "Erro na operação: " . $e->getMessage();
         }
     }
+
 }

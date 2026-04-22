@@ -235,6 +235,7 @@
             @endif
         </div>
     </div>
+    
 
     <!-- LADO DIREITO: PLAYLIST -->
     <div class="playlist-section">
