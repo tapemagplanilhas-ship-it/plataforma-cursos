@@ -8,7 +8,7 @@
 
     .btn-create { 
         background: #e50000; 
-        color: var(--text-primary);
+        color: #fff;
         padding: 10px 20px; 
         border-radius: 6px; 
         text-decoration: none;
@@ -20,8 +20,8 @@
     .courses-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 20px;
-        margin-top: 20px;
+        gap: 60px;
+        margin-top: 70px;
     }
 
     .course-card {
@@ -69,7 +69,7 @@
 
     .course-cover-title {
         font-size: 1.4rem;
-        color: var(--text-primary);
+        color: #fff;
         font-weight: 700;
         line-height: 1.4;
         z-index: 1;
@@ -125,7 +125,7 @@
 
     .btn-view {
         background: #e50000;
-        color: var(--text-primary);
+        color: #fff;
         text-decoration: none;
     }
 

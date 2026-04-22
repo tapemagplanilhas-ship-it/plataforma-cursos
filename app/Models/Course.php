@@ -44,4 +44,10 @@ class Course extends Model
     {
         return $this->belongsTo(User::class, 'created_by');
     }
+
+        // Um Curso TEM MUITAS Aulas (Ordenadas pela coluna 'order')
+    public function lessons()
+    {
+        return $this->hasMany(Lesson::class)->orderBy('order', 'asc');
+    }
 }

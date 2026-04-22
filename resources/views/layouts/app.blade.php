@@ -396,13 +396,18 @@
             padding: 12px 16px;
             border-bottom: 1px solid var(--border-light);
             margin-bottom: 8px;
+            display: flex;
+            flex-direction: column; /* Força um item embaixo do outro */
+            align-items: flex-start; /* Alinha tudo perfeitamente à esquerda */
+            gap: 6px; /* Dá um respiro elegante entre o nome e a badge */
         }
 
         .profile-name {
             font-weight: 700;
             color: var(--text-primary);
             font-size: 0.95rem;
-            margin-bottom: 4px;
+            margin-bottom: 0; /* Tiramos a margem antiga porque o gap já faz o trabalho */
+            line-height: 1;
         }
 
         /* Itens do Menu (Admin, Tema) */
@@ -528,7 +533,7 @@
             <div class="profile-dropdown-content" id="profileDropdown">
                 <div class="profile-header">
                     <div class="profile-name">{{ auth()->user()->name }}</div>
-                    <span class="badge badge-{{ auth()->user()->role }}" style="margin-left: 0;">{{ auth()->user()->role }}</span>
+                    <span class="badge badge-{{ auth()->user()->role }}" style="margin-left: 0; align-self: flex-start;">{{ auth()->user()->role }}</span>
                 </div>
 
                 @if(auth()->user()->isAdmin())

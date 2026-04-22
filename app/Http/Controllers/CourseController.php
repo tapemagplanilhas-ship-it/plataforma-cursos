@@ -11,11 +11,24 @@ use Illuminate\Support\Facades\Log;
 class CourseController extends Controller
 {
     /**
-     * Lista todos os cursos
+     * Lista os cursos filtrados pelo cargo do usuário
      */
     public function index()
     {
-        $courses = Course::with('creator')->active()->latest()->paginate(12);
+        $user = \Illuminate\Support\Facades\Auth::user();
+
+        // 1. Inicia a query base (Cursos ativos, com o criador, do mais novo pro mais velho)
+        $query = Course::with('creator')->active()->latest();
+
+        // 2. A Trava de Segurança (Stop Loss)
+        // Se o usuário NÃO for admin, aplicamos o filtro de cargo
+        if (!$user->isAdmin()) {
+            $query->whereIn('allowed_role', ['todos', $user->role]);
+        }
+
+        // 3. Executa a query e pagina
+        $courses = $query->paginate(12);
+
         return view('courses.index', compact('courses'));
     }
 
@@ -112,4 +125,43 @@ class CourseController extends Controller
 
     return redirect()->back()->with('success', 'Curso completado! Verifique seus badges.');
 }
+    public function upgradeFratiToPlaylist()
+    {
+        \Illuminate\Support\Facades\DB::beginTransaction();
+
+        try {
+            // 1. Pega os cursos antigos
+            $curso1 = \App\Models\Course::where('title', 'FRATI - Parte 1')->firstOrFail();
+            $curso2 = \App\Models\Course::where('title', 'FRATI - Parte 2')->firstOrFail();
+
+            // 2. Transforma o vídeo do Curso 1 na "Aula 01"
+            \App\Models\Lesson::create([
+                'course_id' => $curso1->id,
+                'title' => 'Aula 01 - Introdução e Conceitos',
+                'video_path' => $curso1->video_path, // Pega o vídeo que estava na capa
+                'order' => 1
+            ]);
+
+            // 3. Transforma o vídeo do Curso 2 na "Aula 02" (e joga pro Curso 1)
+            \App\Models\Lesson::create([
+                'course_id' => $curso1->id,
+                'title' => 'Aula 02 - Aprofundamento Fiscal',
+                'video_path' => $curso2->video_path,
+                'order' => 2
+            ]);
+
+            // 4. Renomeia a Capa do Curso 1 para o nome definitivo
+            $curso1->update(['title' => 'FRATI - Completo']);
+
+            // 5. Apaga a "casca" do Curso 2 (o vídeo já tá salvo na tabela lessons agora)
+            $curso2->delete();
+
+            \Illuminate\Support\Facades\DB::commit();
+            return "Setup concluído! O FRATI agora é uma Playlist com 2 aulas! 🚀";
+
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\DB::rollBack();
+            return "Erro na operação: " . $e->getMessage();
+        }
+    }
 }
